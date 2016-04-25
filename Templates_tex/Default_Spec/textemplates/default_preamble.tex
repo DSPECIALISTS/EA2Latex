@@ -1,0 +1,112 @@
+
+\RequirePackage{fix-cm} 											% error correction for standard fonts
+
+%% define CLASS
+%\documentclass[11pt, a4paper, parskip=half*, bibliography=totoc, final, numbers=noenddot]{scrartcl} 	%scrreprt									
+
+\usepackage[svgnames]{xcolor}										% colors for listings
+
+%% misc
+\usepackage{helvet}
+\renewcommand*\familydefault{\sfdefault}      %% Only if the base font of the document is to be sans serif
+\usepackage{underscore}
+\usepackage[T1]{fontenc}											% T1 fonts für gute pdf-Ausgabe
+\usepackage[utf8]{inputenc}										% wegen deutschen Umlauten
+\usepackage[automark]{scrpage2}										% Koma Headers
+\usepackage{fixltx2e}												% fixes for latex2e
+\usepackage{makeidx}											% for Index
+\makeindex
+
+%% TeX function that generates the language commands.
+\def\localedef#1#2{
+\ifthenelse{ \equal{\locale}{#1} }{
+  \selectlanguage{#2}
+  \expandafter\def\csname#1\endcsname ##1{##1}
+  }{
+  \expandafter\def\csname#1\endcsname ##1{}
+  }
+}
+
+%\providecommand\locale{en}
+
+%\localedef{de}{ngerman}
+%\localedef{en}{english}
+\usepackage{textcomp}  % fo use of \texttildelow
+%\usepackage{boxit}	 												% frame handling
+%\usepackage{nag}													% warn user on outdated packages
+\usepackage{fancyhdr}
+
+%\usepackage{soul}													% emphasizing text, underlining
+%\usepackage{breakurl}												% for broken urls in Bibliography when hyperref is in use
+%\usepackage[square]{natbib}										% andere Literaturverweise, z. B. Zahlen
+\usepackage[onehalfspacing]{setspace}								% 1.5, change line spaces by \singlespacing \doublespacing
+
+%% tables
+\usepackage{multicol} 												% multiple columns in tables
+\usepackage[margin=10pt,labelfont=bf]{caption}						% table headers
+\usepackage{hhline}													% horizontal lines
+\usepackage{longtable}												% pagebreak tables
+\addtokomafont{caption}{\normalsize}
+\usepackage{booktabs}												% bold table lines, e.g. \toprule
+\usepackage{tabularx}												% neue Tabular-Umgebung
+\usepackage{ifthen}
+\usepackage{array}
+\usepackage{lscape}													%rotation
+
+%% graphics
+\usepackage{graphicx}												% include graphics
+
+% path to graphics
+\graphicspath{{textemplates/}{./eaimages/}}
+
+\usepackage{picture}
+\usepackage{eso-pic}
+
+\usepackage{float}
+\restylefloat{figure}
+\usepackage{rotating} 												% rotating elements
+\usepackage{listings}												% for programming source code
+
+\usepackage{datatool}												% handling csv data
+
+%%hyperref
+\usepackage{xr-hyper}
+
+\usepackage[linktocpage]{hyperref}									% links in pdf, thumbnails
+\makeatletter
+\def\@hyper@linkfile file:#1\\#2#3{%
+    %file url,link string, name
+  \filename@parse{#1}%
+  \ifx\filename@ext\relax
+    \edef\filename@ext{\XR@ext}%
+  \fi
+  \def\use@file{\filename@area\filename@base.\filename@ext}%
+  \hyper@linkfile{#2}{\use@file}{#3}%
+}
+\makeatother
+
+%% layout
+\usepackage[top=2.5cm,left=3.5cm,right=2.5cm,bottom=3cm]{geometry}
+
+% Disable automatic interpretation of underscore. That is to not automatically
+% enter math mode upon reaching an underscore in the document. This was conflicting
+% with displaying file names which contain underscores in the context of cross
+% document references.
+\catcode`_=12
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% project definitions
+
+\input{textemplates/lang_strings}
+
+% Command to define external document
+% #1: Dok-Source
+% #2: Dok-Url
+% #3: Dok-Alias
+\newcommand{\eatexExternalDocument}[3]
+{%
+        \externaldocument{#1}[#2]%
+	\expandafter\newcommand\csname eatexdoc#2\endcsname{#3}%
+}
+

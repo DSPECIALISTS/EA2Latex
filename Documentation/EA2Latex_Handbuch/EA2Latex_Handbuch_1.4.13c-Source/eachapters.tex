@@ -1,0 +1,914 @@
+%% Automatically generated tex file from EA2Latex-Plugin %%
+
+
+\input{./745BEB8C-C813-4025-ACA2-F00BF7B407B9.tex}
+
+\DSPEpackage{Einleitung}{0}{Das EA2Latex Addin dient der Generierung eines Latex-Dokuments aus einem EA (Enterprise Architect) Model und der angeschlossenen Erstellung eines PDF-Dokuments aus den Latex-Quellen. In diesem Handbuch wird beschrieben, wie das Addin zu installieren und zu benutzen ist. 
+
+Zunächst wird in einer kurzen Einleitung ein Überblick über die \DSPEelemref{Package}{Architektur}{D51EBD19-DD1A-43ae-B40B-3AAA0D9D74AD}{Architektur}{}{} gegeben. Danach werden \DSPEelemref{Package}{Installationshinweise}{8404F6CA-3C26-46bd-9FB6-36FBEA57E784}{Installationshinweise}{}{} gegeben und im Anschluss die \DSPEelemref{Package}{Bedienungshinweise}{EDFB8342-730A-4ebc-94BE-A6ECD08AD946}{Bedienung}{}{} beschrieben. Im \DSPEelemref{Package}{Anhang}{9B3D28F0-32A6-42ce-B02D-4E6C33556D7F}{Anhang}{}{} finden sich spezifische Angaben zur Benutzung von \textit{EA,TaggedValues} zur Steuerung der Ausgabe und zu den EA2Latex-spezifischen Latex-Kommandos.
+
+Das Addin wird lokal auf dem PC installiert, auf dem auch EA installiert ist. Die Latex-Distribution und die Buildumgebung für die Erstellung des PDF-Dokuments aus den Latex-Quellen liegt hingegen auf dem \DSPEelemref{Package}{Installation des Buildservers}{E652C5B1-EB96-4c3a-BA21-8F3FC6307780}{Build-Server}{}{}. Für die Kommunikation mit dem Server benutzt das Addin PuTTY. Für die Betrachtung des PDF-Dokuments ist ein PDF-Viewer nötig. In der \DSPEelemref{Package}{Konfigurationsdatei}{805359FD-6A08-454a-9BC7-AC09AD5032FF}{Konfigurationsdatei}{}{} können Systempfade eingestellt werden.}{68F71C80-3C94-40d9-A59E-B443A2BD5B87}{tree}{}{Proposed}
+
+\DSPEpackage{Version}{0}{Handbuch für EA2latex Addin 1.4.13.0}{DB9AFA8B-401C-43b8-ABF6-637902909920}{tree}{}{Proposed}
+
+\DSPEpackage{Architektur}{0}{Dieser Abschnitt soll einen Überblick über die bei der Dokumentengenerierung beteiligten Komponenten geben.
+
+Der Architektur liegt ein zweistufiger Build-Prozess zugrunde:
+\begin{enumerate}
+	\item Das EA2Latex-Addin generiert auf dem Client-PC aus dem EA-Modell den Inhalt eines Latex-Dokuments und kopiert dieses in eine Build-Umgebung.
+	\item Ein Build-Server generiert aus dem Latex-Dokument basierend auf zentral definierten Templates das finale PDF-Dokument.
+\end{enumerate}}{D51EBD19-DD1A-43ae-B40B-3AAA0D9D74AD}{tree}{}{Proposed}
+
+\DSPEfigure{D168EDD4-C40E-474f-A086-B37D0E58213B}{Übersicht System Architektur}{fit}{ }{}
+
+\DSPEelement{Client-PC}{Device}{Der Client ist der Arbeitsplatz-PC, auf dem Enterprise-Architect ausgeführt wird.}{21845F5D-FBCE-4f41-9BE6-9C299682B048}{tree}{1}{}{Proposed}
+
+\DSPEartifact{Configuration File}{Das EA2Latex-Addin liest Client-spezifische Einstellungen aus der Konfigurationsdatei, u.a. Details zum Build-Server.
+}{}{9E2DBE5F-1300-4ba2-AB38-8F79B8425DE8}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{EA2Latex Addin}{}{Das EA2Latex Addin realisiert die Generierung des LaTeX Codes aus dem EA-Modell.}{EBACFA27-490B-42af-934D-6F6943059D25}{flat}{2}{DLL}{Proposed}
+
+\DSPEcomponent{PDF Viewer}{}{EA2Latex kann einen externen PDF Viewer für die Anzeige des fertigen PDFs benutzen.}{71DBA05E-19A8-4a90-AE40-BE9DE066423E}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{PuTTY}{}{EA2Latex verwendet das externe Tool \dq{}PuTTY\dq{}  bzw. dessen Programme \dq{}plink\dq{} und \dq{}psftp\dq{} für den Zugriff auf den Server.
+}{E6094C19-5DAC-4696-8126-F91F12D8344F}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{plink}{}{Mit \textbf{plink }wird eine SSH Verbindung zum Server aufgebaut werden, z.B. um das Build-Kommando abzusetzen.}{A267922A-929D-4f61-9024-D495C8D3C60E}{flat}{3}{}{Proposed}
+
+\DSPEcomponent{psftp}{}{Mit \textbf{psftp }werden via SFTP die vom Addin generierten Latex- und Bilddateien auf den Server kopiert.}{9B3D918F-0D67-4408-A0AB-BCA906A91FCB}{flat}{3}{}{Proposed}
+
+\DSPEelement{Server}{Device}{Der Server ist üblicherweise ein zentraler Linux-Server, auf dem die endgültige Dokumenten-Generierung ausgeführt wird, kann aber z.B. auch eine Virtuelle Maschine auf dem Client-PC sein.
+
+Die Nutzung eines dedizierten Servers soll die vergleichsweise komplexe LaTeX-Installation von den Clients fernhalten und unternehmensweit identische Build-Regeln für Dokumente (Templates, etc.) garantierten.}{EFC3D415-F87A-4794-B745-B9E87DA5F05B}{tree}{1}{}{Proposed}
+
+\DSPEcomponent{Build Script}{}{Das Build-Script wird vom EA2Latex-Addin nach dem Generieren der Latex-Dateien aufgerufen. Es startet die Dokumentengenerierung basierend auf den hinterlegten LateX-Templates.}{FC225DD8-8296-4107-8158-80DAFD59A3B5}{flat}{2}{}{Proposed}
+
+\DSPEartifact{Latex Templates}{Die Latex-Templates setzen die im generierten Latex Code enthaltenen Style-Kommandos um. Sie bestimmen somit das Look \& Feel der Dokumente. Die Wahl der verwendeten Templates erfolgt durch das Build-Script, welches je Dokument konfiguriert werden kann (optional).}{}{727CAE95-9FDB-44de-843E-A0ECCA3C5C45}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{LaTeX-Installation}{}{Auf dem Buildserver muss eine LaTeX-Installation existieren, welche vom Build-Script verwendet werden kann, um aus den vom EA2Latex-Addin generierten TeX-Dateien das finale Dokument zu erzeugen.}{B0DBC43D-E439-482a-B818-0415BDB9630B}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{Subversion}{}{Das EA2Latex-Addin kann per Subversion auf Nutzerwunsch verschiedene Dokumentenstände zu revisionieren.}{49F5C03F-ADDF-452b-9853-4E3EAFABB5EC}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{SSH Server}{}{Der Secure Shell Server ermöglicht den Remote-Zugriff auf die weiteren Server-Tools.}{71D09723-B8E4-49b5-B404-E1BD7B434EBC}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{pdfcrop}{}{Ermöglicht es den überschüssigen, weißen Rand von PDF-Dateien zu entfernen.}{A5D0CBBC-A7E2-4e3a-B438-2F424B10A59F}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{pdflatex}{}{Konvertiert die .tex-Dateien in eine .pdf-Datei.}{E939DC92-8D52-4658-8D55-94C16CA09A76}{flat}{2}{}{Proposed}
+
+\DSPEcomponent{rtf2latex}{}{EA2Latex verwendet das open source Tool rtf2latex2e, um rtf-Texte in tex-Dateien zu konvertieren.}{F735E4A4-DA7F-4bf1-BDF5-3A39A79C37F0}{flat}{2}{}{Proposed}
+
+\DSPEpackage{Lizenzen}{0}{Das EA2Latex-Addin wird von DSPECIALISTS unter der GNU Lesser General Public License (LGPL) Version 3 vertrieben.
+
+Die mit dem EA2Latex-Installer ausgelieferten PuTTY-Komponenten plink und psftp stehen unter der MIT-Lizenz.
+
+Für alle Komponenten gilt: Die Software wird ohne Garantie oder Gewährleistung für einen bestimmten Sinn oder Zweck frei zur Verfügung gestellt.}{A08FBD52-58FD-4f2b-8686-2987B499DBE8}{tree}{}{Proposed}
+
+\DSPEpackage{Installationshinweise}{0}{ }{8404F6CA-3C26-46bd-9FB6-36FBEA57E784}{tree}{}{Proposed}
+
+\input{./8404F6CA-3C26-46bd-9FB6-36FBEA57E784.tex}
+
+\DSPEpackage{Systemanforderungen}{1}{Hinweise zu den Systemanforderungen:
+\begin{itemize}
+	\item Das Addin wurde bisher nur unter Windows 7 und Windows XP benutzt. 
+\end{itemize}
+\begin{itemize}
+	\item Adobe Reader 10
+	\item Enterprise Architect 9-12
+\end{itemize}}{0EFE85B0-29D1-4700-8B9A-476B63174587}{tree}{}{Proposed}
+
+\DSPEpackage{Installation des EA2Latex Addins}{1}{Im Folgenden wird der Installationsablauf des EA2Latex Addins für die SparxSystems Enterprise Architect Software beschrieben.
+\begin{enumerate}
+	\item Ausführen der Datei EA2Latex_Setup.msi
+	\item Den Haken für das Bestätigen der Lizenzvereinbarung setzen und auf den Install-Button klicken
+	\item Installationspfad wählen
+	\item Gegebenenfalls die Windows-Warnung (Änderungen am Computer durch das Programm zulassen) mit \dq{}Ja\dq{} bestätigen
+	\item Finish-Button klicken
+	\item Nun kann der EnterpriseArchitect gestartet werden
+\end{enumerate}
+
+Es wird eine Standardkonfiguration im EALatex Ordner der Anwendungsdaten angelegt (\dq{}C:/User/\textless{}Benutzername\textgreater{}/AppData/Local/EA2Latex\dq{}). Außerdem wird der Ordner \dq{}graphics\dq{} angelegt, in welchem die vom Plugin aus EA exportierten Diagramme liegen.}{08B62899-74EA-47c6-A8C9-D1C6030CEDE4}{tree}{}{Proposed}
+
+\DSPEpackage{Installation des Buildservers}{1}{Der Build-Server stellt die Build-Umgebung für die LaTeX-Dokumente bereit. So lange alle Dokumente die gleiche Stilvorgaben verwenden, genügt eine Build-Umgebung für alle Dokumente im Unternehmen. Die Installation des Build-Servers muss dann nur einmal erfolgen.
+
+Wie der Build-Server die Dokumente erzeugt, ist dem EA2Latex Addin prinzipiell egal. Es benötigt nur einen Server, auf dem es via SFTP Dateien ablegen und per SSH das Build-Kommando anstoßen kann. Verzeichnis- und Scriptnamen sind in der \DSPEelemref{Package}{Konfigurationsdatei}{805359FD-6A08-454a-9BC7-AC09AD5032FF}{Addin-Konfiguration}{}{} einstellbar.
+
+Im EA2Latex Source Repository befindet sich das Standard-Build-Skript \dq{}default_build.sh\dq{}, welches die in der \DSPEimgref{82CE0A43-BAB3-4810-A3A3-97D21626775E} beschriebene Ordnerstruktur erwartet.
+
+
+}{E652C5B1-EB96-4c3a-BA21-8F3FC6307780}{tree}{}{Proposed}
+
+\DSPEpackage{LaTeX-Installation}{2}{Für die LaTeX Installation sollten (auf einem Linux-System) folgende Pakete installiert werden:
+\begin{itemize}
+	\item texlive
+	\item texlive-lang-german (optional)
+	\item rtf2latex2e 2.2.1
+	\item datatool Package Version 2.2
+\end{itemize}}{62F4B568-296C-49f3-9349-AB824CD09F3F}{tree}{}{Proposed}
+
+\DSPEpackage{Subversion-Installation}{2}{Wenn die \DSPEelemref{UseCase}{Revisionsverwaltung}{3657CA11-75FA-4e02-B071-1557219BECF0}{Revisionerung}{Dokument verwalten}{} der Dokumnte via Subversion (SVN) gewünscht ist, muss auf dem Build-Server Subversion installiert sein.}{4A641D5A-B58E-4bd2-A2F6-88A31D0F7218}{tree}{}{Proposed}
+
+\DSPEpackage{Standard-Build-Umgebung bereitstellen}{2}{In der Default-Ordnerstruktur werden die Verzeichnisse \dq{}ea2latex_docs\dq{} und \dq{}ea2latex_bin\dq{} im Nutzerverzeichnis ealatex-Nutzers auf dem Build-Server angelegt. Ist ein anderer Nutzeraccount gewünscht, muss dieser auf allen Clients in die Addin-Konfigurationsdatei eingetragen werden.}{EC4B7D72-DEA0-4bc1-A5CF-34B208A7D011}{tree}{}{Proposed}
+
+\DSPEfigure{82CE0A43-BAB3-4810-A3A3-97D21626775E}{Installation des Buildservers}{fit}{ }{}
+
+\DSPEelement{ea2latex_bin}{Node}{Dieses Verzeichnis enthält die tex-Templates und das build-Skript. Die Inhalte dieses Verzeichnisses werden im Rahmen der Dokumentengenerierung nicht modifiziert.
+
+Der Inhalt des ea2latex_bin Verzeichnisses kann aus dem SVN-Repository-Pfad \dq{}Templates_tex/Default_Spec\dq{} ausgecheckt werden. Es muss sichergestellt werden, dass der ealatex-Nutzer Leserechte für alle Dateien und Ausführrechte für das default_build.sh Skript besitzt. Dies sollte gewährleistet sein, wenn die Dateien mit dem ealatex-Nutzer ausgecheckt werden.}{21BE16B1-D899-45d9-B10C-9D7567293C12}{flat}{3}{}{Proposed}
+
+\DSPEartifact{default_build.sh}{Build Skript}{}{238FF7EA-B855-4532-8112-563ADFF0922F}{flat}{4}{}{Proposed}
+
+\DSPEartifact{default_preamble.tex}{Default Preamble für alle vom Plugin generierten Dokumente.}{}{9E89826F-F547-4e06-B3F4-88E90B6372B1}{flat}{5}{}{Proposed}
+
+\DSPEartifact{DSPElogo.png}{DSPECIALISTS-Firmenlogo für Titelseite}{}{8E5CDC56-FBE3-4d12-BE28-51CBA220392C}{flat}{5}{}{Proposed}
+
+\DSPEartifact{eatexcmd.tex}{EA2Latex-spezifische Latex-Kommandos.}{}{1047DF97-5D11-4944-8855-BB440B3C7E4C}{flat}{5}{}{Proposed}
+
+\DSPEartifact{eatexdoc.cls}{Klassendefinition.}{}{02BD6F13-D5DF-45f6-91BB-1B28C1D5DA05}{flat}{5}{}{Proposed}
+
+\DSPEartifact{lang_strings.tex}{Sprachabhängige Strings, wie z.B. in Tabellen oder Abbildungen benutzt}{}{EA789421-B266-4ffa-A8E5-533D3AE86374}{flat}{5}{}{Proposed}
+
+\DSPEartifact{titel.tex}{Titelseite}{}{32743907-6232-4016-B145-663BE35FF581}{flat}{5}{}{Proposed}
+
+\DSPEelement{ea2latex_docs}{Node}{Im ea2latex_docs-Verzeichnis werden die erstellten Dokumente abgelegt.
+
+Die Verzeichnisse \dq{}\textless{}user\textgreater{}\dq{}, \dq{}\textless{}document_root\textgreater{}\dq{} und \dq{}temp\dq{} werden vom EA2Latex-Addin angelegt. Mit der Unterteilung in Benutzer-Verzeichnisse wird sichergestellt, dass sich unterschiedliche Benutzer nicht in die Quere kommen, wenn sie Dokumente generieren. Im \dq{}\textless{}document_root\textgreater{}\dq{}-Verzeichnis landet die Dokumentenstruktur, so wie sie im EA-Model \DSPEelemref{UseCase}{Dokumentenbaum definieren}{8B2D24DD-E349-4902-91A8-96EA0DED2608}{definiert wurde.}{Dokument definieren}{} Der Verzeichnisname ist standardmäßig der Name des Packages im welchem die \textit{Model Documents} liegen, kann aber über das TaggedValue \textit{ea2tex_document_root} einen definierten Namen erhalten.
+
+Im \dq{}temp\dq{}-Verzeichnis landen die tex-Sourcen und das PDF-Dokument bei der Ausgabe eines beliebigen Packages.}{7EDDA9E2-3533-46c0-84A0-E7C2704C7B12}{flat}{3}{}{Proposed}
+
+\DSPEelement{<user>}{Node}{Benutzerverzeichnis. wird bei der Dokumentgenerierung erzeugt.}{17F1019F-C51E-47dc-B781-F2AB74788106}{flat}{4}{}{Proposed}
+
+\DSPEelement{<document_root>}{Node}{Verzeichnis in welchem der Dokumentenbaum, so wie er im EA definiert wurde, angelegt wird.}{53B24E3A-68D5-48b9-B12C-621D30E2B9F5}{flat}{5}{}{Proposed}
+
+\DSPEelement{temp}{Node}{Verzeichnis in dem die Dokumente landen, die direkt auf Packages ausgeführt werden.}{70F8980D-9CEB-45ea-BA5E-A6607D933148}{flat}{5}{}{Proposed}
+
+\DSPEpackage{SSH-Zugang}{2}{Damit EA2Latex mit dem Buildserver per SSH und SFTP kommunizieren kann, muss folgendes beachtet werden:
+\begin{itemize}
+	\item Auf dem Buildserver muss ein ein User Account angelegt werden (Default: \dq{}ealatex\dq{})
+	\item Der User muss Schreibzugriff auf das \DSPEelemref{Node}{ea2latex_docs}{7EDDA9E2-3533-46c0-84A0-E7C2704C7B12}{ea2latex_docs}{}{} Verzeichnis haben.
+	\item Der User muss Lesezugriff auf das \DSPEelemref{Node}{ea2latex_bin}{21BE16B1-D899-45d9-B10C-9D7567293C12}{ea2latex_bin}{}{}-Verzeichnis haben
+\end{itemize}
+
+\textbf{Hinweis:} Das EA2Latex-Addin bietet derzeit noch kein Frontend für die Prüfung/Annahme des Server Keys. Es ist deshalb notwendig, mit JEDEM Client-PC einmalig eine SSH-Verbindung mit PuTTY zu dem Build-Server aufzubauen, um darüber den Server-Key zu akzeptieren. werden, um den Server-Key zu akzeptieren. 
+}{01B86919-0685-45be-B68A-DED578BD7ED2}{tree}{}{Proposed}
+
+\DSPEpackage{Samba-Konfiguration}{2}{Für das Öffnen der generierten Dokumente auf dem Build-Server muss ein Zugriff per Dateifreigabe möglich sein.
+
+Auf dem Build-Server muss hierfür ein Samba-Server eingerichtet werden, über welchen die Home-Verzeichnisse freigegeben werden, siehe zum Beispiel unten stehendes Beispiel.
+
+\textbf{Hinweis: }EA2Latex ist derzeit nicht in der Lage, die Netzwerkfreigabe vom Client-PC anzulegen. Es versucht einfach den direkten Zugriff auf die Freigabe. Damit das klappt, sollte eine der folgenden Varianten sicher gestellt sein:
+\begin{itemize}
+	\item Der Windows-Nutzer des Client-PCs hat ein Samba-Login auf dem Build-Server. In diesem Fall wird die Netzwerkfreigabe von Windows automatisch geöffnet. Dies ist der empfohlene Weg.
+	\item Der Windows-Nutzer hat die Netzwerkfreigabe zuvor manuell geöffnet und sich mit einem gültigen Build-Server-Nutzer authentifiziert.
+\end{itemize}}{68B6D3B0-CBF8-41b0-949D-F0A61848BC53}{tree}{}{Proposed}
+
+\DSPEfigurebegin
+
+\input{./8D531584-A83F-4c16-98A9-9FB2BBF74F42.tex}
+
+\DSPEfigureend{ }{Beispiel Ausschnitt aus smb.conf}{8D531584-A83F-4c16-98A9-9FB2BBF74F42}
+
+\DSPEpackage{Deinstallation des EA2Latex Addins}{1}{Im Folgenden wird der die Deinstallation des EA2Latex Addins beschrieben.
+
+Das EA2Latex Addin kann über \dq{}Systemsteuerung --\textgreater{} Programme deinstallieren\dq{} wieder entfernt werden.}{9E979D9C-622F-4a9d-8AD5-DF8EAF4EFC75}{tree}{}{Proposed}
+
+\DSPEpackage{Konfigurationsdatei}{1}{Die Konfigurationsdatei definiert die Build-Umgebung für das EA-Addin. Hierzu gehören die benötigten Pfade auf dem Server.
+
+In der Konfigurationsdatei stehen folgende Einträge:
+\begin{itemize}
+	\item \textit{server}: Der Name oder IP des Servers auf den die Dateien kopiert werden sollen
+	\item \textit{target_path}: Zielverzeichnis der Dateien auf dem Server
+\end{itemize}
+\begin{itemize}
+	\item \textit{build_cmd}: Der Kommandozeilenaufruf für das build-Skript, das die PDF-Erstellung aus den tex-Dateien kapselt
+\end{itemize}
+
+Nach der Addin-Installation kann die Standardkonfiguration angepasst werden. Darüber hinaus ist es auch möglich weitere Umgebungen zu definieren.}{805359FD-6A08-454a-9BC7-AC09AD5032FF}{tree}{}{Proposed}
+
+\DSPEpackage{Ändern der bestehenden Konfigurationsdatei}{2}{Bei der Installation wird die Default-Konfigurationsdatei \dq{}ea2latex_default.conf\dq{} mit ausgeliefert. Im Normalfall muss diese nur in ea2latex.conf umbenannt werden.
+
+Es ist möglich, dass die voreingestellten Pfade ungültig sind. Das EA2Latex Addin weist durch entsprechende \DSPEelemref{Package}{Fehlermeldungen}{9694E810-4C17-4cb9-9786-A3FB07E78C92}{Fehlermeldungen}{}{} darauf hin. In diesem Fall kann über den Button \dq{}View Config\dq{} der Ordner zu der Konfigurationsdatei geöffnet werden und diese mit einem Editor angepasst werden.}{E88DCC1F-623D-4f07-B2B0-AB69E0415186}{tree}{}{Proposed}
+
+\DSPEpackage{Anlegen einer neuen Konfigurationsdatei}{2}{Die neue Konfigurationsdatei muss analog zu der Default-Konfigurationsdatei aufgebaut sein. Dem EA2Latex Addin -- bzw. dem \dq{}Model Document\dq{}, das diese Datei verwenden soll -- muss nun der Name der neuen Konfigurationsdatei mitgeteilt werden. Dazu wird für das \dq{}Model Document\dq{} ein neues tagged value mit dem Namen \DSPEelemref{Class}{Model Document Tagged Values}{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}{ea2tex_config_name}{}{} angelegt. Im Anwendungsverzeichnis (AppData) wird die Datei \textless{}Dateiname\textgreater{}.conf angelegt und entsprechend gefüllt.
+
+Damit wird sichergestellt, dass die Verbindung zum Server erstellt werden kann, auf dem die Ordnerstruktur ausgecheckt wurde; siehe auch den \DSPEelemref{Package}{Installation des Buildservers}{E652C5B1-EB96-4c3a-BA21-8F3FC6307780}{Abschnitt zur Build-Server-Installation.}{}{}}{F1FF627E-B109-4b3f-8D13-961B8BDEDD7A}{tree}{}{Proposed}
+
+\DSPEpackage{Bedienungshinweise}{0}{ }{EDFB8342-730A-4ebc-94BE-A6ECD08AD946}{tree}{}{Proposed}
+
+\DSPEfigure{3C2291B1-D673-48bf-9493-AD4E37792D2C}{Dokumentenerzeugung mit EA2Latex}{fit}{ }{}
+
+\DSPEelement{Dokument definieren}{UseCase}{Es ist möglich, per EA2Latex direkt und ohne weitere Konfiguration \DSPEelemref{UseCase}{Dokument aus Package generieren}{42A751B2-7BFC-4255-9EB9-57078E55297B}{Package-Inhalte auszugeben}{Dokument generieren}{}. Hierbei wird jedoch der Dokument-Titel direkt aus dem Package-Namen abgeleitet und es sind auch sonst keine weiteren Einstellungen zum Dokument möglich. Dieser Weg wird deshalb vor allem für das schnelle, testweise generieren von \DSPEelemref{UseCase}{Abschnitte aus Packages erstellen}{B7A5B9D3-D301-4a90-9EE4-120BCD5ABEC6}{Teilabschnitten eines Dokuments}{Dokument strukturieren}{} eingeschlagen.
+
+Die vollständige Definition eines Dokuments wird über das EA-Element \textit{Model Document} ermöglicht.
+
+Verschiedene Spezifikationsdokumente werden über \textit{Model Document} Elemente definiert und üblicherweise innerhalb eines \DSPEelemref{UseCase}{Dokumentenbaum definieren}{8B2D24DD-E349-4902-91A8-96EA0DED2608}{Dokumentenbaums organisiert}{Dokument definieren}{}.
+
+Dokumenteigenschaften können über das \textit{Model Document} (genaugenommen über die \DSPEelemref{Class}{Model Document Tagged Values}{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}{TaggedValues des Model Documents}{}{}) festgelegt werden.}{D9EC1110-CA4D-4474-AB45-16C5ABF75161}{tree}{1}{}{Proposed}
+
+\DSPEfigure{D569F663-AE25-49fd-B04A-B0D06D422B9C}{Aspekte der Dokumentendefinition}{fit}{ }{}
+
+\DSPEelement{Dokumentinhalt zuordnen}{UseCase}{Der Inhalt wird über Zuordnung eines Packages zum Model Document zugewiesen. Dies erreicht man am einfachsten, in dem man ein Model Document Element in einem Diagramm platziert und anschließend das Package, welches den Inhalt liefern soll, aus dem Projekt Browser hinein zieht. Das Package ist dann als Attribut des Model Documents angelegt.
+}{B14987A8-BA9D-4a9d-AA8E-167D3A5E4AB9}{tree}{2}{}{Proposed}
+
+\DSPEfigure{90B87967-8867-4e6c-9BE3-226CB11CE93F}{Zuordnung Package zu Model Document}{fit}{ }{}
+
+\DSPEelement{Titel und Typ festlegen}{UseCase}{Das EA2Latex-Addin unterscheidet zwischen Titel und Typ eines Dokuments.
+
+Der Typ soll die Art des Dokuments beschreiben. Beispiele für Typ sind: \dq{}Anforderungsspezifikation\dq{} oder \dq{}Modulspezifikation\dq{}. Zu einem Produkt gibt es in der Regel verschiedene solcher Spezifikationsdokumente, die über den Typ unterschieden werden.
+
+Als Titel wird in der Regel der Projekt-, Produktname oder Modulname eingesetzt -- je Eingrenzung des Inhalts.
+
+Die Festlegung von Titel und Typ erfolgt über die \DSPEelemref{Class}{Model Document Tagged Values}{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}{Tagged Values}{}{} \DSPEelemref{Attribute}{ea2tex_document_type}{7363B22C-3DC2-4ba4-9D32-678638C8C5F9}{ea2tex_document_type}{Model Document Tagged Values}{} und \DSPEelemref{Attribute}{ea2tex_document_title}{3E73722C-E194-40a0-960E-9C14AB72C27D}{ea2tex_document_title}{Model Document Tagged Values}{} des Model Documents.
+}{AFD9A36A-F6E4-496f-A2D2-7617C7E62193}{tree}{2}{}{Proposed}
+
+\DSPEelement{Ausgabe des Wurzelpackage festlegen}{UseCase}{Beim Generieren eines Entwurfs aus einem Packages werden standardmäßig das Package sowie alle Unterpackages ausgegeben. Beim Generieren eines Dokuments aus einem Model Document wird das Wurzelpackage standardmäßig nicht ausgegeben, nur alle Unterpackages.
+
+Über das TaggedValue \DSPEelemref{Attribute}{ea2tex_skip_root_package}{2629F927-C774-4843-A116-C7ADDC9F8BF2}{ea2tex_skip_root_package}{Model Document Tagged Values}{} des Wurzel-Packages lässt sich dieses Verhalten explizit steuern.
+}{F572A198-F459-49b3-8871-EAC43AAB6736}{tree}{2}{}{Proposed}
+
+\DSPEelement{Sprache festlegen}{UseCase}{Einige Textteile werden automatisch generiert (z.B. bei Referenzen: \dq{}siehe Abschnitt XY\dq{}; oder die Beschriftung von Tabellen und Abbildungen). Das Addin unterstützt dabei derzeit die Sprachen Englisch und Deutsch.
+
+Die Dokumentsprache kann über das  TaggedValue \DSPEelemref{Attribute}{ea2tex_document_lang}{1E6795FA-6BBC-4e6b-B60E-7BE01256B09C}{ea2tex_document_lang}{Model Document Tagged Values}{} des Model Documents festgelegt werden. Wird keine Sprache angegeben, greift die Grundeinstellung der \DSPEelemref{Package}{Installation des Buildservers}{E652C5B1-EB96-4c3a-BA21-8F3FC6307780}{Server-Buildumgebung}{}{}; in der Grundkonfiguration ist das \dq{}Deutsch\dq{}.
+}{39CF091A-A9D8-4e7f-82BC-7E1FF8A96BC4}{tree}{2}{}{Proposed}
+
+\DSPEelement{Dokumentenbaum definieren}{UseCase}{Der Dokumentenbaum bildet das Dokumentenverzeichnis innerhalb des Models ab. Um einen Dokumentenbaum zu definieren legt man (i.d.R auf Model-Ebene) ein Package an. Diesem Package gibt man folgende TaggedValues:
+\begin{itemize}
+	\item \DSPEelemref{Attribute}{ea2tex_document_root}{9E264F83-A0D5-45a8-A46E-4AF04E702967}{ea2tex_document_root}{Package Tagged Values}{}: das Wurzelverzeichnis des Dokumentenbaums im Projektverzeichnis (z.B. für das EA2Latex-Addin: DSPE_EA2Latex/documentation).
+	\item \DSPEelemref{Attribute}{ea2tex_svn_root}{0D2C1A05-FFE5-4ae4-9571-909F85FDF0BC}{ea2tex_svn_root}{Package Tagged Values}{}: das Wurzelverzeichnis des Dokumentenbaums im SVN (z.B. für das Plugin: http://svn-server/svn/EA2Latex/documentation)
+\end{itemize}
+
+Hinweis: Der Package-Name ist frei wählbar, sollte aber sinnvollerweise \dq{}Dokumentverzeichnis\dq{}, \dq{}Document Directory\dq{} o.ä. heißen.
+
+Die generierten Dokumente werden entsprechend der im Dokumentenbaum-Package definierten Hierarchie \DSPEelemref{Node}{<document_root>}{53B24E3A-68D5-48b9-B12C-621D30E2B9F5}{auf dem Buildserver}{<user>}{} generiert.}{8B2D24DD-E349-4902-91A8-96EA0DED2608}{tree}{2}{}{Proposed}
+
+\DSPEelement{Dateiname festlegen}{UseCase}{Der Dateiname wird standardmäßig automatisch aus Dokumenttitel und Dokumenttyp generiert, es kann aber optional ein individueller Dateiname über das TaggedValue \DSPEelemref{Attribute}{ea2tex_doc_filename}{8AEC4EF0-0FFE-411b-A3E7-C1430C6DEEC1}{ea2tex_doc_filename}{Model Document Tagged Values}{} angegeben werden.
+
+Der Dateiname sollte nicht mehr als 255 Zeichen besitzen und keine reservierten Wörter enthalten, da die Generierung sonst verweigert wird. Sonderzeichen und Umlaute werden durch Unterstriche bzw. durch den Vokal + \dq{}e\dq{} ersetzt.
+}{351176CA-CA1E-4b62-A77A-C46159BA24A9}{tree}{2}{}{Proposed}
+
+\DSPEelement{Tiefe des Inhaltsverzeichnisses festlegen}{UseCase}{Die Tiefe des Inhaltsverzeichnisses ist standardmäßig 3. D.h. es werden im Inhaltsverzeichnis nur die Abschnitte bis zur 3. Unterkapitelebene angezeigt (z.B. 1.3.4 oder 2.5.1). Die Tiefe lässt sich, wenn gewünscht, über das TaggedValue \DSPEelemref{Attribute}{ea2tex_toc_depth}{28151863-FCF8-44fb-8D5D-4F1081D0984A}{ea2tex_toc_depth}{Model Document Tagged Values}{} anpassen.
+}{2BD5FDB3-112A-475a-B10B-DE4E120FD272}{tree}{2}{}{Proposed}
+
+\DSPEelement{Dokument editieren}{UseCase}{Die Inhalte eines Dokuments befinden sich unterhalb eines frei definierbaren Packages innerhalb des Models. Die Zuordnung diverser von Dokumenteigenschaften erfolgt über die separate \DSPEelemref{UseCase}{Dokument definieren}{D9EC1110-CA4D-4474-AB45-16C5ABF75161}{Dokumentendefinition}{}{}.
+
+Um sinnvolle Dokumente aus dem Model zu generieren zu können, sollte der Inhalt nach Dokument-Gesichtspunkten \DSPEelemref{UseCase}{Dokument strukturieren}{3D9693E0-89E1-49e3-8F30-03AA009F76BD}{strukturiert werden.}{Dokument editieren}{} Die Vorgehensweise hängt hier maßgeblich vom Dokumenttyp ab.
+
+Über die Boardmitel von EA hinaus können mittels \DSPEelemref{Package}{Tagged Values}{4A047A20-0173-4e9e-A8DE-FEFF3A578D6A}{Tagged-Values}{}{} und \DSPEelemref{Package}{Stereotype}{B84CC200-6978-4730-B8EC-DE8576D6388B}{Stereotypes}{}{} spezielle Anweisungen an den EA2Latex-Generator gegeben werden, um die Dokumentenausgabe weiter zu beeinflussen.}{490671A1-1603-4f05-9849-A58E8D7BEA85}{tree}{1}{}{Proposed}
+
+\DSPEfigure{32DC16EE-75FB-4010-87F2-4CA424D98D2B}{Möglichkeiten, ein Dokument zu editieren}{fit}{ }{}
+
+\DSPEelement{Dokument strukturieren}{UseCase}{Die Strukturierung von Dokumenten erfolgt über die Definition von Abschnitten.
+
+Aus Model-Sicht definiert jedes Model-Element einen Abschnitt im Dokument, sei es ein Package, ein Use-Case oder ein sonstiges Element.
+
+Abschnitte erhalten als Überschrift den Namen des jeweiligen Elements und darunter den Inhalt des Notes-Feldes. Danach folgen die dem Element untergeordneten Diagramme, Tabellen und weiteren Elemente.
+
+Es gibt Einschränkungen in den Möglichkeiten der Strukturdefinition, welche sich aus der UML-Spezifikation ergeben:
+\begin{itemize}
+	\item Nicht-Package-Elemente können nicht jeden anderen Elementtyp enthalten. Die wenigsten Elemente können zum Beispiel Packages enthalten.
+	\item Packages und andere Model-Elemente können nicht beliebig in der Reihenfolge gemischt werden: Packages stehen immer vor allen anderen Elementen.
+\end{itemize}
+
+Aus diesen Einschränkungen heraus ist es sinnvoll, Packages vor allem in den oberen Ebenen der Dokumentenstruktur einzusetzen.}{3D9693E0-89E1-49e3-8F30-03AA009F76BD}{tree}{2}{}{Proposed}
+
+\DSPEfigure{05C98766-1DA5-4acb-80A9-A36A6CF5D0BA}{Möglichkeiten, ein Dokument zu strukturieren}{fit}{ }{}
+
+\DSPEelement{Abschnitte aus Packages erstellen}{UseCase}{Packages eignen sich auf Grund ihrer begrenzten Einsetzbarkeit unterhalb anderer Elemente vor allem zur Definition von übergeordneten Dokumentenabschnitten.
+
+Packages geben dem Dokument (und natürlich auch dem Model) somit eine Grundstruktur und dienen auch der Definition von eigentlich Model-fremden Dokumentinhalten wie \dq{}Einleitung\dq{}, \dq{}Anhang\dq{}, und so weiter.
+
+Es ist jedoch auch möglich ein Spezifikationsdokument vollständig über Packages zu strukturieren und Inhalt allein über die Package-Notes zu liefern. Dabei verzichtet man dann aber auf die semantische und formale Aussagekraft der UML-Notation.
+
+Das EA2Latex Addin erzeugt aus Package-Namen in der Standardeinstellung nummerierte Überschriften. Die Nummerierung wird entsprechend der Package-Struktur verschachtelt. Dieses Verhalten kann über das Tagged Value \DSPEelemref{Attribute}{ea2tex_section_style}{3B5D52FF-37D6-4080-AFB9-F979CCC703BC}{ea2tex_section_style}{Package Tagged Values}{} explizit gesteuert werden.}{B7A5B9D3-D301-4a90-9EE4-120BCD5ABEC6}{tree}{3}{}{Proposed}
+
+\DSPEelement{Abschnitte aus Model-Elementen erstellen}{UseCase}{Die Namen von Nicht-Package-Elementen werden von EA2Latex in der Standardeinstellung als nicht-nummerierte Überschriften dargestellt. Die Notes und weitere Inhalte folgen darunter ohne erkennbare Verschachtelung.
+
+Dieses Verhalten kann über das Tagged Value \DSPEelemref{Attribute}{ea2tex_section_style}{3B5D52FF-37D6-4080-AFB9-F979CCC703BC}{ea2tex_section_style}{Package Tagged Values}{} explizit gesteuert werden.}{98D3F52A-6A9E-4632-B86A-ACB7D13E9404}{tree}{3}{}{Proposed}
+
+\DSPEelement{Elemente ein- bzw. ausblenden}{UseCase}{Über das TaggedValue \DSPEelemref{Attribute}{ea2tex_visibility}{F4DE8649-27E2-46e0-86F1-AE496E409AF8}{ea2tex_visibility}{Element Tagged Values}{} lassen sich beliebige Elemente, das heißt Abschnitte des Dokuments, ein- bzw. ausblenden.
+
+In der Default-Einstellung wird die Ausgabe vom Elementtyp abhängig gemacht:
+\begin{itemize}
+	\item Requirements werden immer eingeblendet
+	\item Andere Elemente werden nur ausgeblendet, wenn das Notes-Feld leer ist.
+\end{itemize}
+
+\textit{Hinweis: Packages lassen sich nicht ausblenden.}
+}{29AD18C8-CF1A-44e7-961A-720A3804B65A}{tree}{3}{}{Proposed}
+
+\DSPEelement{Querverweise erstellen}{UseCase}{Ein Schwerpunkt des EA2Latex Addins ist die Erstellung von Querverweisen und die Nachverfolgbarkeit (Traceability). Querverweise lassen sich im EA erstellen, indem man im Notes-Feld eines Elements den Text markiert, der einen Querverweis enthalten soll und entweder
+\begin{itemize}
+	\item über Rechtsklick-\textgreater{}Create-\textgreater{}Link To Existing Element, das Ziel des Querverweises auswählt
+	\item auf den Hyperlink-Button in der Menüleiste des Notes-Feldes klickt und das Ziel des Querverweises auswählt.
+\end{itemize}
+
+Das Plugin erstellt automatisch dependency-Verknüpfungen vom Stereotype hyperlink von den Elementen, in denen der Querverweis steht zu dem Zielelement des Verweises. Über diese Verknüpfungen kann der Nutzer im Traceability-Fenster nachvollziehen, ob auf ein Element verwiesen wird und von wo.
+
+Wenn beim Generieren des Elements Verweisziele nicht existieren, erscheint im finalen Dokument der folgende Text: \dq{}(Verweis auf nicht existentes Element)\dq{} und der \DSPEelemref{UseCase}{Fehlerlog anzeigen}{E8432CE9-0860-482e-8CC6-5E3EC38C259A}{Plausibilitätscheck}{Dokument generieren}{} schlägt an.
+}{DB8E17F2-8A8F-4d17-AB30-EB448F479AC1}{tree}{2}{}{Proposed}
+
+\DSPEfigure{0E212752-C02D-4f56-ABB4-7FB1E25FA532}{Querverweisevarianten}{fit}{ }{}
+
+\DSPEelement{Verweise auf interne Dokumentinhalte}{UseCase}{Wählt man einen Dokument-internes Verweisziel, so erstellt das Addin automatisch ein entsprechendes Latex-Kommando an der Stelle. Das Layout wird in der \DSPEelemref{Artifact}{eatexcmd.tex}{1047DF97-5D11-4944-8855-BB440B3C7E4C}{eatexcmd.tex}{textemplates}{}-Datei festgelegt.}{4DEF5907-383B-4247-A2B5-E35C95FF0E52}{tree}{3}{}{Proposed}
+
+\DSPEelement{Verweise auf externe Dokumentinhalte}{UseCase}{Bei einem Verweisziel in einem externen Dokument (das aber auch im EA-Model enthalten ist und generiert werden kann), muss man dem Model Document noch mitgeben, dass es sich auf ein bestimmtes Dokument bezieht. Dafür zieht man eine Dependency-Verknüpfung vom Model Document, das den Querverweis enthält, zu dem Model Document, das das Verweisziel enthält.
+
+Das Zieldokument kann darüber auch \DSPEelemref{UseCase}{Referenzen-Abschnitt generieren}{55ACA27D-39CF-4463-B783-1918B2F4FE69}{in einem Referenzen-Abschnitt aufgelistet werden}{Inhalte automatisieren}{}.
+
+Das Addin kümmert sich automatisch darum, die entsprechenden Latex-Kommandos in den generierten TeX-Dateien unterzubringen, damit der Verweis auf den Abschnitt im externen Dokument aufgelöst werden kann.
+}{9E8072BA-E46F-4a19-B4F4-6983E016760E}{tree}{3}{}{Proposed}
+
+\DSPEelement{Abbildungen erstellen}{UseCase}{Abbildungen können aus Model-Diagrammen oder Artefakten ins Dokument eingebunden werden.
+
+Der Name des Diagramms oder Artefakts wird für die Beschriftung im Dokument herangezogen.
+
+Die Notes werden zusätzlich zur Beschriftung im Text ausgegeben. Die Platzierung und Formatierung erfolgt je nach LaTeX-Template, zum Beispiel kursiv oberhalb der Beschriftung.}{178B472B-BFD6-4692-BDAD-56B3DEF3B614}{tree}{2}{}{Proposed}
+
+\DSPEfigure{AF26A9D2-37FA-4b92-A6DF-ED94CD0C2AAE}{Möglichkeiten, Abbildungen zu erstellen}{fit}{ }{}
+
+\DSPEelement{Model-Diagramme als Abbildung einbinden}{UseCase}{Model-Diagramme werden automatisch als Abbildungen unterhalb des Elements eingefügt, dem sie im Model zugeordnet sind.
+
+Hinweis: Diagramme werden nicht eingebunden, wenn in den Diagram-Properties der Haken bei \dq{}Exclude image from Documentation\dq{} gesetzt ist.}{69ACEE5F-8D90-490c-820B-BFF8A0A1E200}{tree}{3}{}{Proposed}
+
+\DSPEelement{Abbildungen aus linked Documents einbinden}{UseCase}{Es ist möglich Abbildungen, die in linked Documents enthalten sind, im Dokument auszugeben. Dazu muss folgendes beachtet werden:
+\begin{itemize}
+	\item Es muss ein Artefaktelement erstellt werden.
+	\item Für dieses Artefakt muss in einem linked  Document eine Abbildung enthalten sein.
+	\item Der Stereotype des Artefakts ist auf \DSPEelemref{Attribute}{figure}{17E8D56C-A342-4f3d-AA80-67B735177CDE}{figure}{Artifact Stereotypes}{} zu setzen.
+	\item Der Name der Abbildung ist der Name des Artefakts.
+\end{itemize}
+
+
+\textbf{Hinweise:}
+\begin{itemize}
+	\item Die Breite der Abbildung sollte manuell im rtf Dokument angepasst werden, damit eine optimale Darstellung im Dokument gewährleistet ist.
+	\item Notes sind optional
+	\item Folgende Dateiformate für Abbildungen werden unterstützt: *.bmp, *.wmf, *.jpg, *.png, *.gif, *.emf, *.tif.
+	\item Im verlinkten rtf Dokument sollte sich nur die Abbildung befinden.
+\end{itemize}}{6FA47B36-442D-4440-B1D9-70918A962D7B}{tree}{3}{}{Proposed}
+
+\DSPEelement{Grafiken / Abbildungen aus externen Dateien einbinden}{UseCase}{Es können externe Dokumente vom Typ .jpg, .pdf, .png, .eps direkt im Ausgangsdokument angezeigt werden. Dazu muss folgendes beachtet werden:
+\begin{itemize}
+	\item Ein Artefakt muss erstellt werden und das Tagged Value \DSPEelemref{Attribute}{ea2tex_filename}{16BA9C60-6583-49dc-930C-B6BAD3CC5A41}{ea2tex_filename}{Artifact Tagged Values}{} muss den Dateinamen als Pfadangabe relativ zum Sourceverzeichnis des Dokuments unterhalb der \DSPEelemref{Node}{<document_root>}{53B24E3A-68D5-48b9-B12C-621D30E2B9F5}{document_root}{<user>}{} auf dem Buildserver beinhalten.
+	\item Der Stereotype des Artefakts ist auf \DSPEelemref{Attribute}{figure}{17E8D56C-A342-4f3d-AA80-67B735177CDE}{figure}{Artifact Stereotypes}{} zu setzen.
+	\item Die Datei wird dann ausgegeben und darunter werden die Artfakt Notes angezeigt.
+	\item Der Name der Abbildung ist der Name des Artefakts.
+\end{itemize}}{82534347-E73A-4bf2-8C9E-915D4E782795}{tree}{3}{}{Proposed}
+
+\DSPEelement{Tabellen erstellen}{UseCase}{Tabellen können auf Basis verschiedener Elementtypen und -eigenschaften erstellt werden.
+
+Der Name des Elements wird für die Beschriftung der Tabelle im Dokument herangezogen.
+
+Die Notes werden zusätzlich zur Beschriftung im Text ausgegeben. Die Platzierung und Formatierung erfolgt je nach LaTeX-Template, zum Beispiel kursiv unterhalb der Beschriftung.}{A2B5A073-FD30-4d17-A99E-CBFC0AEF9B83}{tree}{2}{}{Proposed}
+
+\DSPEfigure{E4C22135-CA7D-44b9-85EC-AEFBA443CDF2}{Möglichkeiten, Tabellen zu erstellen}{fit}{ }{}
+
+\DSPEelement{Tabelle aus Elementeigenschaften erzeugen}{UseCase}{EA2Latex erzeugt automatisch Tabellen für die folgenden Eigenschaften eines Elements:
+\begin{itemize}
+	\item Methoden
+	\item Attribute
+	\item Runstates
+	\item Requirements
+\end{itemize}}{2374EC52-8BD3-434f-A565-7C409D83CF02}{tree}{3}{}{Proposed}
+
+\DSPEelement{Tabelle aus SQL-Suchanfrage erstellen}{UseCase}{EA2Latex kann eine (zwei- oder dreispaltige) Tabelle mit den Ergebissen einer SQL-Suchanfrage erstellen. Hierfür muss folgendes beachtet werden:
+\begin{itemize}
+	\item Ein Artifact muss verwendet werden,
+	\item Das Artifact muss vom Stereotype \DSPEelemref{Attribute}{table}{EEA3CA4F-D287-4cb7-B6AA-7CB438B17E93}{table}{Artifact Stereotypes}{} sein,
+	\item Die Überschrift der Tabelle ist der Name des Artifacts
+	\item das Tagged Value \DSPEelemref{Attribute}{ea2tex_sql_query}{C448B834-5192-42d6-8BEB-693C88A93239}{ea2tex_sql_query}{Artifact Tagged Values}{} muss die SQL-Suchanfrage beinhalten.
+	\item zusätzlich kann die Tabelle um 90 grad gedreht werden, dazu muss das Tagged Value \DSPEelemref{Attribute}{ea2tex_orientation}{C07C4467-FA97-4970-B998-5699D8DAB16A}{ea2tex_orientation}{Artifact Tagged Values}{} mit \dq{}landscape\dq{} verwendet werden. Die Angabe dieses Tagged Value ist optional
+\end{itemize}}{B5DBDCE7-C45D-4e2f-8D5F-8987F2AA7F97}{tree}{3}{}{Proposed}
+
+\DSPEelement{Tabelle für Kommandozeilenschnittstelle erzeugen}{UseCase}{Die Aufrufsyntax einer Kommandozeilenschnittstelle kann tabellarisch dargestellt werden.
+
+Für die Spezifikation einer Kommandozeilenschnittstelle muss ein EA-Element vom Typ Interface verwendet werden. Der Stereotyp muss auf \DSPEelemref{Attribute}{command interface}{839F684D-4FC5-4ba2-A6BB-EADF04C949B8}{command interface}{Interface Stereotypes}{} geändert werden. Damit ist sicher gestellt, dass die Tabellen der Methoden und Attribute einer Kommandzeilenschnittstelle richtig dargestellt werden.}{62B01213-1BBE-49da-A371-5F8F54771A72}{tree}{3}{}{Proposed}
+
+\DSPEelement{Tabelle aus linked Document einbinden}{UseCase}{Es ist möglich Tabellen, die in linked Documents enthalten sind, im Dokument auszugeben. Dazu muss folgendes beachtet werden:
+\begin{itemize}
+	\item Es muss ein Artefaktelement erstellt werden.
+	\item Für dieses Artefakt muss in einem linked  Document eine Tabelle / Abbildung enthalten sein.
+	\item Der Stereotype des Artefakts ist auf \DSPEelemref{Attribute}{table}{EEA3CA4F-D287-4cb7-B6AA-7CB438B17E93}{table}{Artifact Stereotypes}{} zu setzen.
+	\item Der Name der Tabelle ist der Name des Artefakts.
+\end{itemize}
+\begin{itemize}
+	\item Die Notes des Artefakts werden zwischen dem Header der Tabelle und der eigentlichen Tabelle ausgegeben
+\end{itemize}
+
+\textbf{Hinweise:}
+\begin{itemize}
+	\item Die Breite der Tabelle sollte manuell im rtf Dokument angepasst werden, damit eine optimale Darstellung im Dokument gewährleistet ist.
+	\item Notes sind optional
+	\item Im verlinkten rtf Dokument sollte sich nur die Tabelle befinden.
+\end{itemize}}{E1E5286D-0AB7-414d-AEF2-D426854E2FE9}{tree}{3}{}{Proposed}
+
+\DSPEelement{Tabelle aus CSV Datei erzeugen}{UseCase}{EA2Latex kann automatisch eine Tabelle aus einer CSV Datei erzeugen. Folgendes ist zu beachten:
+\begin{itemize}
+	\item Ein Artefakt vom Stereotype \DSPEelemref{Attribute}{table}{EEA3CA4F-D287-4cb7-B6AA-7CB438B17E93}{table}{Artifact Stereotypes}{} muss erzeugt werden
+	\item Der Name des Artefakts ist der Name der Tabelle
+	\item Die Artfakt Notes werden (falls vorhanden) zwischen dem Tabellenlabel (z.B. Tabelle 1: Daten) und der Tabelle ausgegeben
+\end{itemize}
+Es müssen folgende Tagged Values gesetzt werden:
+\begin{itemize}
+	\item \DSPEelemref{Attribute}{ea2tex_filename}{16BA9C60-6583-49dc-930C-B6BAD3CC5A41}{ea2tex_filename}{Artifact Tagged Values}{}: Dateiname, relativ zum Sourceverzeichnis des Dokuments unterhalb der \DSPEelemref{Node}{<document_root>}{53B24E3A-68D5-48b9-B12C-621D30E2B9F5}{document_root}{<user>}{} auf dem Buildserver
+	\item \DSPEelemref{Attribute}{ea2tex_filetype}{5B0AAD5B-3160-45e5-97A2-879948CF253F}{ea2tex_filetype}{Artifact Tagged Values}{}: Muss \dq{}csv\dq{} sein
+	\item \DSPEelemref{Attribute}{ea2tex_csv_delimiter}{002292EB-AD0F-47d8-8189-ACAFDB852A16}{ea2tex_csv_delimiter}{Artifact Tagged Values}{} (optional): Default ist \dq{},\dq{}
+\end{itemize}
+
+\textbf{Hinweise:}
+\begin{itemize}
+	\item Momentan wird die maximale Breite der Tabelle nicht kontrolliert und es finden keine Zeilenumbrüche innerhalb einer Zelle statt, d.h. wenn die Tabelle zu viele Daten enthält, passt die Tabelle nicht auf die Seite.
+\end{itemize}}{3A04DA36-6F0D-4b29-8CCF-AB7F683E34E2}{tree}{3}{}{Proposed}
+
+\DSPEelement{Inhalte automatisieren}{UseCase}{Einzelne Packages/Abschnitte des Dokuments können von EA2Latex mit automatisch generierten Inhalten gefüllt werden. Basis für Inhalte stellen diverse Verknüpfungsinformationen innerhalb des Modells dar.
+}{270F7C32-0681-4fcc-A5F6-8EF50165EC40}{tree}{2}{}{Proposed}
+
+\DSPEfigure{B117BD15-33D6-443b-9D5B-6C4EAE8E22D3}{Möglichkeiten, Inhalte zu automatisieren}{fit}{ }{}
+
+\DSPEelement{Anforderungsverfolgung generieren}{UseCase}{Im Laufe des Softwaredesigns kann es hilfreich sein, sich anzeigen zu lassen, welche Anforderungen bereits von welchen Designkonzepten oder -komponenten realisiert werden und welche Anforderungen noch nicht realisiert werden. EA2Latex bietet zu diesem Zweck eine \dq{}Anforderungsverfolgung\dq{}. Darüber kann der Nutzer sich die realisierten und nicht realisierten Anforderungen tabellarisch anzeigen lassen. Bei den realisierten Anforderungen wird auf die Abschnitte im Dokument verwiesen, die die realisierende Komponente enthalten.
+
+Um die Anforderungsverfolgung zu erstellen sind folgende Schritte notwendig.
+\begin{enumerate}
+	\item Package an der Stelle im package-Baum erstellen, wo die Anforderungsverfolgung im Dokument landen soll
+	\item dem Package das TaggedValue \DSPEelemref{Attribute}{ea2tex_req_trace}{2B09E79F-8ED0-4d37-B734-2767C6E43030}{ea2tex_req_trace}{Package Tagged Values}{} geben
+	\item optional den Wert des TaggedValue auf \textit{realizedonly }oder \textit{unrealizedonly }setzen, wenn man nur die realisierten bzw. die nicht realisierten Anforderungen in der Anforderungsverfolgung sehen möchte
+	\item Dependency Verknüpfungen von diesem Package zu den Packages ziehen, die die zu verfolgenden Anforderungen enthalten. (Am einfachsten durch Erstellen eines Package-Diagrams)
+\end{enumerate}
+
+Die Anforderungen müssen über die realized Verknüpfung mit dem(n) realisierenden Element(en) verknüpft werden, damit sie als realisierte Anforderungen erkannt werden.
+}{F3CAFFCD-D070-4074-B6EA-4915376D3E89}{tree}{3}{}{Proposed}
+
+\DSPEelement{Referenzen-Abschnitt generieren}{UseCase}{Über das TaggedValue  \DSPEelemref{Attribute}{ea2tex_references}{9C9AA03F-1900-4776-BF92-1F8B6553E8B5}{ea2tex_references}{Package Tagged Values}{} lässt sich ein Package als Referenzen-Package markieren. In diesen Abschnitt des Dokuments werden dann die Dokument-Referenzen, die über Dependency-Verknüpfungen zu anderen Dokumenten im Modell markiert wurden, generiert. Es wird jeweils ein Titel und ein Dateipfad für das refenzierte Dokument erzeugt.
+
+Es werden Model Documents und Artifact Documents berücksichtigt. Für Model Documents gibt es drei Möglichkeiten für die Bestimmung des Titels, dabei werden alle Möglichkeiten geprüft und nach folgender Hierachie ausgewertet:
+\&nbsp;
+\begin{enumerate}
+	\item Aus den Tagged Values \DSPEelemref{Attribute}{ea2tex_document_title}{3E73722C-E194-40a0-960E-9C14AB72C27D}{ea2tex_document_title}{Model Document Tagged Values}{} und ea2tex_document_type wird der Titel erstellt.
+	\item Der Titel ist gleich dem Tagged Value \DSPEelemref{Attribute}{ea2tex_doc_filename}{8AEC4EF0-0FFE-411b-A3E7-C1430C6DEEC1}{ea2tex_doc_filename}{Model Document Tagged Values}{}.
+	\item Der Titel ist gleich dem Namen des Model Documents.
+\end{enumerate}
+
+In allen drei Fällen wird der Pfad automatisch erstellt und der Dateiname ist gleich dem Titel (mit der Endung '.pdf').
+
+Für Artifact Documents wird immer der Name des Artifact Documents als Titel verwendet. Für den Dateipfad gilt folgendes:
+\&nbsp;
+\begin{itemize}
+	\item Der Dateiname ist gleich dem Tagged Value \DSPEelemref{Attribute}{ea2tex_doc_filename}{8AEC4EF0-0FFE-411b-A3E7-C1430C6DEEC1}{ea2tex_doc_filename}{Model Document Tagged Values}{} und der Pfad wird automatisch erzeugt.
+	\item Falls unter 'Files' ein Pfad (URL oder Lokale Dateil) existiert, wird dieser als Dateipfad verwendet.
+	\item Falls keiner der beiden genannten Fälle zutrifft wird kein Pfad verwendet (Hilfreich, wenn z.B. ein physisch vorhandes Dokument referenziert werden soll).
+\end{itemize}}{55ACA27D-39CF-4463-B783-1918B2F4FE69}{tree}{3}{}{Proposed}
+
+\DSPEelement{Ändern der Formatierung/des Layouts}{UseCase}{ }{E8B963E0-8D3F-417c-AA12-ABB5AD8A6911}{tree}{2}{}{Proposed}
+
+\DSPEfigure{3A155879-851C-40d1-84D8-D1DD4C882BE8}{Möglichkeiten der Fomatierung}{fit}{ }{}
+
+\DSPEelement{Einfache Textformatierung}{UseCase}{Einfache Formatierung von Texten kann innerhalb des Notes-Feldes des zu bearbeitenden Elements stattfinden. Unterstützt werden:
+\begin{itemize}
+	\item fette oder kursive Hervorhebungen
+	\item Unterstreichungen
+	\item nummerierte einfache Listen
+	\item unnummerierte einfache Listen
+	\item Hochstellen
+	\item Tiefstellen
+	\item Hyperlinks
+	\item Ändern der Schriftfarbe
+\end{itemize}
+
+Komplexere Formatierungen können über linked Documents im RTF-Format \DSPEelemref{UseCase}{Komplexe Textformatierung}{E096767C-2319-4255-9E7D-21F13E5B1688}{realisiert werden.}{Ändern der Formatierung/des Layouts}{}}{E2CDF0F0-BE60-444c-8E56-AE1750158EB7}{tree}{3}{}{Proposed}
+
+\DSPEelement{Komplexe Textformatierung}{UseCase}{Komplexere Formatierungen, die über die \DSPEelemref{UseCase}{Einfache Textformatierung}{E2CDF0F0-BE60-444c-8E56-AE1750158EB7}{Möglichkeiten des Notes-Feldes}{Ändern der Formatierung/des Layouts}{} hinaus gehen, können über das Linked Document Feature von Enterprise Architect realisiert werden.
+
+Linked Documents können zum Beispiel über das Kontextmenü eines Elements erstellt werden und erlauben diverse RTF-Formatierungen.
+
+Hinweis: es ist auch Möglich per Copy/Paste Texte aus anderen Anwendungen in ein Linked Document zu kopieren und somit Formatierungen zu ermöglichen, die aus dem EA-Editor nicht direkt zugänglich sind, zum Beispiel Formeln.
+
+Warnung: nicht Möglichkeiten des RTF-Formats werden vom EA2Latex-Buildprozess unterstützt. Eine Einschränkung ergibt sich aus den Fähigkeiten des für die Konvertierung verwendeten \DSPEelemref{Component}{rtf2latex}{F735E4A4-DA7F-4bf1-BDF5-3A39A79C37F0}{rtf2latex}{Server}{} Programms. Desweiteren ist es nicht möglich Fremdinhalte, z.B. über die OLE-Schnittstelle, einzubinden.}{E096767C-2319-4255-9E7D-21F13E5B1688}{tree}{3}{}{Proposed}
+
+\DSPEelement{Ändern der Stilvorlagen für Elemente}{UseCase}{Die Formatierung des Dokuments lässt sich durch Anpassen der \DSPEelemref{Package}{Installation des Buildservers}{E652C5B1-EB96-4c3a-BA21-8F3FC6307780}{LaTeX-Templates auf dem Server}{}{} ändern. 
+
+Die von EA2Latex verwendeten LaTeX Kommandos für die verschiedenen Elementtypen sind im \DSPEelemref{Package}{LaTeX Kommandos}{13BC3914-9D0E-41c2-AB93-6621A5F4EBA7}{Anhang}{}{} beschrieben.}{78660D78-D468-4219-AFF2-1EAEEE9DCBAA}{tree}{3}{}{Proposed}
+
+\DSPEelement{Dokument generieren}{UseCase}{Die Dokumentengenerierung folgt grundsätzlich folgendem Ablauf:
+\begin{enumerate}
+	\item Generieren von LaTeX-Code aus gewähltem Teil des EA-Modells.
+	\item Kopieren des generierten Codes auf den Build-Server
+	\item Starten des Build-Kommandos auf dem Build-Server zum Erzeugen des finalen Dokuments.
+\end{enumerate}
+
+Die Dokumentengenerierung kann über das Kontextmenü des Project Browsers oder einen bereits geöffnetes Dialogfenster des EA2Latex-Addins gestartet werden.
+
+Im Anschluss an die Dokumentengenerierung hat der Nutzer die Möglichkeit, das Dokument direkt zu öffnen \DSPEelemref{UseCase}{Model Dokument öffnen}{8425920D-E5E5-4b80-B1A9-4F01C33FBF40}{öffnen}{Dokument öffnen}{} oder zu weitergehend zu \DSPEelemref{UseCase}{Dokument verwalten}{628C53DC-C5A8-4d99-9C11-81D88896F689}{verwalten}{}{}.}{D99A6E8E-8620-467e-9BCE-9874F52C8766}{tree}{1}{}{Proposed}
+
+\DSPEfigure{614D1191-19F4-499d-9CBE-3253893A6054}{Möglichkeiten, ein zu Dokument generieren}{fit}{ }{}
+
+\DSPEfigure{A1A73555-D0CA-4610-AE97-021D75E20017}{Optionale Schritte nach dem Generieren eins Dokuments}{fit}{Nach dem generieren eines Dokuments werden dem Nutzer weitere Schritte angeboten, um den Workflow zu unterstützen.}{}
+
+\DSPEelement{Dokument aus Model Document generieren}{UseCase}{Aus einem \textit{Model Document }lässt sich über LaTeX ein PDF Dokument erstellen. 
+\begin{enumerate}
+	\item Rechtsklick auf das \textit{Model Document}
+	\item Unter Extensions das Addin EA2Latex wählen
+	\item Auf \dq{}Generieren\dq{} klicken
+	\item Ein Statusbalken zeigt den Fortschritt an
+	\item Bei Beendigung hat derAnwender die Möglichkeit das PDF-Dokument anzuschauen, indem er auf \dq{}Dokument öffnen\dq{} klickt
+\end{enumerate}
+
+Siehe auch: \DSPEelemref{UseCase}{Dokument definieren}{D9EC1110-CA4D-4474-AB45-16C5ABF75161}{Dokument definieren}{}{}
+}{6E4E13D3-5532-446f-826B-03AA4EED66B9}{tree}{2}{}{Proposed}
+
+\DSPEelement{Dokument aus Package generieren}{UseCase}{Aus einer Package Baumstruktur lässt sich wie folgt ein PDF-Dokument erstellen:
+\begin{enumerate}
+	\item Rechtsklick auf das Package
+	\item Unter Extensions das Addin EA2Latex wählen
+	\item Ein Statusbalken zeigt den Fortschritt an
+	\item Bei Beendigung hat derAnwender die Möglichkeit das PDF-Dokument anzuschauen, indem er auf \dq{}Dokument öffnen\dq{} klickt
+\end{enumerate}
+
+Dokumenttitel, -sprache und andere Eigenschaften können für Package-Builds nicht festgelegt werden. Wenn dies gewünscht ist, muss ein Dokument \DSPEelemref{UseCase}{Dokument definieren}{D9EC1110-CA4D-4474-AB45-16C5ABF75161}{definiert}{}{} und \DSPEelemref{UseCase}{Dokument aus Model Document generieren}{6E4E13D3-5532-446f-826B-03AA4EED66B9}{generiert}{Dokument generieren}{} werden.}{42A751B2-7BFC-4255-9EB9-57078E55297B}{tree}{2}{}{Proposed}
+
+\DSPEelement{Fehlerlog anzeigen}{UseCase}{Ein Plausibilitätscheck prüft beim Generieren des Dokuments die Konsistenz des EA Models. Folgende Aspekte werden dabei betrachtet:
+\begin{itemize}
+	\item Package-Elemente können nicht Kinder von Nicht-package Elementen sein.
+\end{itemize}
+\begin{itemize}
+	\item Hyperlinks müssen immer auf gültige Elemente verweisen
+\end{itemize}
+
+Wenn eine dieser Bedingungen nicht erfüllt ist, wird dies in einer Fehlerdatei vermerkt und am Ende der Generierung wird ein roter Fehlerlog-Button eingeblendet, über den der Nutzer sich das Log anschauen kann. 
+
+Im Fehlerlog ist das Package-Element vermerkt, wo der Fehler auftrat.
+
+Das Dokument kann trotz dieser Meldung erzeugt werden. Dabei werden folgende Maßnahmen ergriffen:
+\begin{itemize}
+	\item Packages, die Kind eines Nicht-Package-Elements sind, werden nicht ausgegeben.
+	\item Hyperlinks auf nicht existierende Elemente erhalten im Dokument den Hinweis \dq{}Verweis auf nicht existentes Element\dq{} .
+\end{itemize}}{E8432CE9-0860-482e-8CC6-5E3EC38C259A}{tree}{2}{}{Proposed}
+
+\DSPEelement{Dokument öffnen}{UseCase}{Dokumente können im Project Browser über das Kontextmenü eines gewählten Packages oder Model Documents geöffnet werden.}{2DED3554-CA95-4068-9AEA-9D534AFCAD69}{tree}{1}{}{Proposed}
+
+\DSPEfigure{BAD9322E-3E04-4b27-8CB2-737DCD7F16B6}{Möglichkeiten, ein Dokument zu öffnen}{fit}{ }{}
+
+\DSPEelement{Model Dokument öffnen}{UseCase}{Aus dem Model generierte Dokumente sind entweder über Package oder ein Model Document definiert.
+
+Diese können über folgende Wege im PDF-Viewer geöffnet werden:
+\begin{itemize}
+	\item Im EA2Latex-Addin-Dialogfenster nach dem Generieren des Dokuments;
+	\item Im EA2Latex-Addin-Dialogfenster nach dem Öffnen desselben über den \dq{}Verwalten\dq{} Kontextmenüeintrag;
+	\item Direkt aus dem Kontextmenü zum gewählten Package oder Model Document über den Eintrag \dq{}Öffnen\dq{}.
+\end{itemize}
+
+Schlägt das Öffnen fehl, weil die Datei z.B. nicht existiert, wird die Benutzeroberfläche gestartet, so dass das Dokument generiert oder ausgecheckt werden kann.}{8425920D-E5E5-4b80-B1A9-4F01C33FBF40}{tree}{2}{}{Proposed}
+
+\DSPEelement{Externes Dokument öffnen}{UseCase}{Externe Dokumente können aus dem Model heraus geöffnet werden. Dafür muss ein Model Document angelegt werden und das Tagged Value \DSPEelemref{Attribute}{ea2tex_doc_filename}{8AEC4EF0-0FFE-411b-A3E7-C1430C6DEEC1}{ea2tex_doc_filename}{Model Document Tagged Values}{} mit dem Dateinamen des externen Dokuments gesetzt werden. Das entsprechende Dokument muss natürlich auch an der entsprechenden Stelle im Dokumentenbaum liegen (eingecheckt sein).}{89CBD7D0-6ACA-4a3b-8B12-4529A87E9D65}{tree}{2}{}{Proposed}
+
+\DSPEelement{Dokument verwalten}{UseCase}{ }{628C53DC-C5A8-4d99-9C11-81D88896F689}{tree}{1}{}{Proposed}
+
+\DSPEfigure{8854B824-E4FA-4d1b-B062-1FD1E5541819}{Möglichkeiten, ein Dokument zu verwalten}{fit}{ }{}
+
+\DSPEelement{Revisionsverwaltung}{UseCase}{Dokumente, die aus \textit{Model Documents} generiert werden, können im zentralen \DSPEelemref{UseCase}{Dokumentenbaum definieren}{8B2D24DD-E349-4902-91A8-96EA0DED2608}{Repository des Dokumentenbaums}{Dokument definieren}{} abgelegt werden. Das Addin bietet über entsprechende Schaltflächen auf der Benutzeroberfläche die Möglichkeit Dokumente und Dokumentsourcen auszuchecken, einzuchecken oder hinzuzufügen (\textit{Checkout, Commit, Add}). Beim Hinzufügen und Committen ist es erforderlich die Änderungen im aufpoppenden Dialog-Fenster zu protokollieren.
+
+Um die Änderungen zu betrachten, kann der Nutzer die Diff-Schaltfläche benutzen. Darüber wird das Verzeichnis geöffnet in dem die Dokumentsourcen liegen. Über einen externen SVN-Client (z.B. tortoise SVN) können die Änderungen nun hervorgehoben werden.
+
+Beim Zugriff auf das Repository wird der Benutzername und das -passwort abgefragt. Beide Angaben werden verschlüsselt in Dateien gespeichert, so dass eine einmalige Abfrage genügen sollte. Die Login-Daten können auch \DSPEelemref{UseCase}{Login zurücksetzen}{2F05218D-67EF-4269-A18A-43B9B5D0B767}{zurückgesetzt}{Serveranbindung verwalten}{} werden.
+
+Hinweis: Die Versionsverwaltung ist nur für Dokumente möglich, die als \DSPEelemref{UseCase}{Dokument definieren}{D9EC1110-CA4D-4474-AB45-16C5ABF75161}{Dokument definiert}{}{} wurden.}{3657CA11-75FA-4e02-B071-1557219BECF0}{tree}{2}{}{Proposed}
+
+\DSPEelement{Versionierung}{UseCase}{Dokumente können versioniert werden. Dafür stellt die Benutzeroberfläche den Button Version erstellen bereit. Dieser taucht nicht auf, wenn ein \DSPEelemref{UseCase}{Revisionsverwaltung}{3657CA11-75FA-4e02-B071-1557219BECF0}{SVN-gestütztes Dokument}{Dokument verwalten}{} modifiziert wurde. Ansonsten kann eine versionierte Kopie des Dokuments und der Dokument-Sourcen erstellt werden.
+
+Beim Klicken auf den \dq{}Version erstellen\dq{}-Button wird der Nutzer nach einer Versionsnummer gefragt, die das Dokument erhalten soll. Durch Bestätigen mit OK wird das Dokument ein letztes Mal mit Versionsangabe auf der Titelseite gebaut, kopiert (samt Sourcen), umbenannt (Dateiname und Source-Verzeichnis erhalte Versionssuffix) und zur Revisionsverwaltung hinzugefügt.
+
+Gleichzeitig wird im Model ein neues Model Document angelegt, das den Dateinamen des soeben versionierten Dokuments als Tagged value \DSPEelemref{Attribute}{ea2tex_doc_filename}{8AEC4EF0-0FFE-411b-A3E7-C1430C6DEEC1}{ea2tex_doc_filename}{Model Document Tagged Values}{} besitzt, so dass das versionierte Dokument aus dem Model heraus \DSPEelemref{UseCase}{Externes Dokument öffnen}{89CBD7D0-6ACA-4a3b-8B12-4529A87E9D65}{geöffnet}{Dokument öffnen}{} und \DSPEelemref{UseCase}{Verweise auf externe Dokumentinhalte}{9E8072BA-E46F-4a19-B4F4-6983E016760E}{verlinkt}{Querverweise erstellen}{} werden kann.}{282F3512-31A9-4ee2-8941-54AB6D27C0FD}{tree}{2}{}{Proposed}
+
+\DSPEelement{Serveranbindung verwalten}{UseCase}{ }{A1B7EE18-6818-418d-8748-6A8FB96B9B7D}{tree}{2}{}{Proposed}
+
+\DSPEelement{Login zurücksetzen}{UseCase}{Es gibt ein Login für die Server-Verbindung per psftp bzw. ssh und ein Login für die SVN-Revisionsverwaltung. In beiden Fällen werden die Login-Daten verschlüsselt gespeichert und müssen nicht erneut eingegeben werden. Um die Login-Daten zurückzusetzen, muss man über den Button \textit{Konfiguration }in das Einstellungen-Menü wechseln und dort auf \textit{Login zurücksetzen} klicken. bei der nächsten Aktion, die ein Login benötigt, werden die Login-Daten wieder abgefragt.}{2F05218D-67EF-4269-A18A-43B9B5D0B767}{tree}{3}{}{Proposed}
+
+\DSPEpackage{Anhang}{0}{ }{9B3D28F0-32A6-42ce-B02D-4E6C33556D7F}{tree}{}{Proposed}
+
+\DSPEpackage{Stereotype}{1}{Mit Hilfe des Stereotypes von EA-Elementen wird die Dokumentengenerierung weiter beeinflusst.}{B84CC200-6978-4730-B8EC-DE8576D6388B}{tree}{}{Proposed}
+
+\DSPEclasselem{Artifact Stereotypes}{Stereotype Werte für Artifacts}{F5CBE3B5-5B6E-418f-8CD3-F940E666BA19}{flat}{2}{}{Proposed}
+
+\DSPEtablebegin{attribute}{Artifact Stereotypes}{attr:{F5CBE3B5-5B6E-418f-8CD3-F940E666BA19}}{}{}{}{}%
+\DSPEattribute{figure}{string}{Ein Artifact muss vom Stereotype \dq{}figure\dq{} sein, wenn eine Abbildung aus einem \DSPEelemref{UseCase}{Abbildungen aus linked Documents einbinden}{6FA47B36-442D-4440-B1D9-70918A962D7B}{linked Document}{Abbildungen erstellen}{} oder einer \DSPEelemref{UseCase}{Grafiken / Abbildungen aus externen Dateien einbinden}{82534347-E73A-4bf2-8C9E-915D4E782795}{externen Datei}{Abbildungen erstellen}{} ausgegeben werden soll.}{}{}{}{}{17E8D56C-A342-4f3d-AA80-67B735177CDE}{}
+\DSPEattribute{table}{string}{Ein Artifact muss vom Stereotype \dq{}table\dq{} sein, wenn
+\begin{itemize}
+	\item eine \DSPEelemref{UseCase}{Tabelle aus SQL-Suchanfrage erstellen}{B5DBDCE7-C45D-4e2f-8D5F-8987F2AA7F97}{Tabelle aus einer SQL-Suchanfrage}{Tabellen erstellen}{} erzeugt werden soll, oder
+	\item eine \DSPEelemref{UseCase}{Tabelle aus linked Document einbinden}{E1E5286D-0AB7-414d-AEF2-D426854E2FE9}{Tabelle aus einem linked Document ausgegeben}{Tabellen erstellen}{} werden soll, oder
+	\item eine \DSPEelemref{UseCase}{Tabelle aus CSV Datei erzeugen}{3A04DA36-6F0D-4b29-8CCF-AB7F683E34E2}{Tabelle aus einer CSV Datei}{Tabellen erstellen}{} erzeugt werden soll.
+\end{itemize}}{}{}{}{}{EEA3CA4F-D287-4cb7-B6AA-7CB438B17E93}{}
+\DSPEtableend{Artifact Stereotypes Attribute}{attr:{F5CBE3B5-5B6E-418f-8CD3-F940E666BA19}}{}{}
+
+\DSPEtabref{attribute}{attr:{F5CBE3B5-5B6E-418f-8CD3-F940E666BA19}}{}
+
+\DSPEclasselem{Interface Stereotypes}{Stereotype Werte für Interfaces}{F09E269C-0940-4163-9976-35FD2041E7E1}{flat}{2}{}{Proposed}
+
+\DSPEtablebegin{attribute}{Interface Stereotypes}{attr:{F09E269C-0940-4163-9976-35FD2041E7E1}}{}{}{}{}%
+\DSPEattribute{command interface}{string}{Für Kommandozeilenschnittstellen muss das Interface den Stereotype \dq{}command interface\dq{} besitzen, damit Befehle und Paramater im Dokument in \DSPEelemref{UseCase}{Tabelle für Kommandozeilenschnittstelle erzeugen}{62B01213-1BBE-49da-A371-5F8F54771A72}{Tabellen}{Tabellen erstellen}{} richtig dargestellt werden}{}{}{}{}{839F684D-4FC5-4ba2-A6BB-EADF04C949B8}{}
+\DSPEtableend{Interface Stereotypes Attribute}{attr:{F09E269C-0940-4163-9976-35FD2041E7E1}}{}{}
+
+\DSPEtabref{attribute}{attr:{F09E269C-0940-4163-9976-35FD2041E7E1}}{}
+
+\DSPEpackage{Tagged Values}{1}{Die Beeinflussung der Dokumentgenerierung aus dem Modell heraus erfolgt über Tagged Values. In diesem Abschnitt werden die EA-Elemente beschrieben, in denen Tagged Values definiert werden können.}{4A047A20-0173-4e9e-A8DE-FEFF3A578D6A}{tree}{}{Proposed}
+
+\DSPEclasselem{Artifact Tagged Values}{Tagged Value Einstellungen für Artefakte}{6D2A77B2-BDE2-48ba-B76B-5EB9D99ABFB4}{flat}{2}{}{Proposed}
+
+\DSPEtablebegin{attribute}{Artifact Tagged Values}{attr:{6D2A77B2-BDE2-48ba-B76B-5EB9D99ABFB4}}{}{}{}{}%
+\DSPEattribute{ea2tex_csv_delimiter}{String}{Wenn eine \DSPEelemref{UseCase}{Tabelle aus CSV Datei erzeugen}{3A04DA36-6F0D-4b29-8CCF-AB7F683E34E2}{Tabelle aus einer CSV Datei}{Tabellen erstellen}{} erzeugt werden soll, dann kann mit diesem Tagged Value der Demiliter der CSV Datei angegeben werden. Dieses Tagged Value ist optional. Default: \dq{},\dq{}.}{}{}{}{}{002292EB-AD0F-47d8-8189-ACAFDB852A16}{}
+\DSPEattribute{ea2tex_filename}{String}{Um eine \DSPEelemref{UseCase}{Grafiken / Abbildungen aus externen Dateien einbinden}{82534347-E73A-4bf2-8C9E-915D4E782795}{externe Grafik}{Abbildungen erstellen}{} vom Dateityp .pdf, .png, .jpg oder .eps in das Ausgabedokument einzubinden oder \DSPEelemref{UseCase}{Tabelle aus CSV Datei erzeugen}{3A04DA36-6F0D-4b29-8CCF-AB7F683E34E2}{eine Tabelle aus einer CSV Datei zu erzeugen}{Tabellen erstellen}{}, muss dieses Tagged Value gesetzt sein und den Dateinamen als Pfadangabe relativ zum Sourceverzeichnis des Dokuments beinhalten.}{}{}{}{}{16BA9C60-6583-49dc-930C-B6BAD3CC5A41}{}
+\DSPEattribute{ea2tex_filetype}{String}{Wenn eine \DSPEelemref{UseCase}{Tabelle aus CSV Datei erzeugen}{3A04DA36-6F0D-4b29-8CCF-AB7F683E34E2}{Tabelle aus einer CSV Datei}{Tabellen erstellen}{} erzeugt werden soll, muss dieses Tagged Value \dq{}csv\dq{} sein.}{}{}{}{}{5B0AAD5B-3160-45e5-97A2-879948CF253F}{}
+\DSPEattribute{ea2tex_orientation}{String}{Wenn eine Tabelle aus einer SQL-Suchanfrage erstellt wird, kann mit diesem Tagged Value die Tabelle um 90 grad gedreht werden. Das Tagged Value muss hierfür den Wert \dq{}landscape\dq{} besitzen. Wenn dieses Tagged Value nicht gesetzt ist, wird die Tabelle normal ausgegeben.}{}{}{}{}{C07C4467-FA97-4970-B998-5699D8DAB16A}{}
+\DSPEattribute{ea2tex_sql_query}{String}{Mit diesem Tagged Value kann eine Tabelle erzeugt werden. Die Tabelle beeinhaltet die Suchergebnisse einer \DSPEelemref{UseCase}{Tabelle aus SQL-Suchanfrage erstellen}{B5DBDCE7-C45D-4e2f-8D5F-8987F2AA7F97}{SQL-Suchanfrage}{Tabellen erstellen}{}. Die Suchanfrage ist in das Tagged Value zu schreiben.}{}{}{}{}{C448B834-5192-42d6-8BEB-693C88A93239}{}
+\DSPEtableend{Artifact Tagged Values Attribute}{attr:{6D2A77B2-BDE2-48ba-B76B-5EB9D99ABFB4}}{}{}
+
+\DSPEtabref{attribute}{attr:{6D2A77B2-BDE2-48ba-B76B-5EB9D99ABFB4}}{}
+
+\DSPEclasselem{Element Tagged Values}{TaggedValue-Einstellungen beliebiger Elemente.}{BC2F4E86-D008-4f43-8E75-613AFA8FAAC2}{flat}{2}{}{Proposed}
+
+\DSPEtablebegin{attribute}{Element Tagged Values}{attr:{BC2F4E86-D008-4f43-8E75-613AFA8FAAC2}}{}{}{}{}%
+\DSPEattribute{ea2tex_visibility}{String}{(optional) Über dieses tagged value lassen sich beliebige Elemente ein- und ausblenden. Mögliche Werte sind:
+\begin{itemize}
+	\item \textit{always }- Element wird immer im Dokument dargestellt
+	\item \textit{never} - Element wird nie im Dokument dargestellt.
+	\item \textit{notes} - (default) Element wird dargestellt, wenn das Notes-Feld nicht leer ist. 
+\end{itemize}
+
+Hinweis: Bei Requirements ist \textit{always }der Default-Wert.}{}{notes}{}{}{F4DE8649-27E2-46e0-86F1-AE496E409AF8}{}
+\DSPEattribute{ea2tex_section_style}{String}{Elemente werden üblicherweise nicht zur Definition von Sections verwendet. Über folgende Einstellungen des ea2tex_section_style Tagged Values kann das Verhalten aber beeinflusst werden:
+\begin{itemize}
+	\item \dq{}tree\dq{}: das Element wird als (hierarchische) Section behandelt und wird mit dem passenden Latex-Kommando versehen. Damit erhält es in der Standard-Buildumgebung eine Nummer, einen Eintrag im Inhaltsverzeichnis und enthaltene Elemente können weiter untergliederte Nummern erhalten.
+\end{itemize}
+\begin{itemize}
+	\item \dq{}flat\dq{} (default): das Element soll nicht als Section behandelt werden. Diese Einstellung wirkt sich rekursiv auf alle enthaltenen Packages aus, so dass es zu einer flachen Darstellung der Elemente kommt.
+\end{itemize}
+
+}{}{}{}{}{4F01B9F0-804D-443e-9A08-7EDB49001F75}{}
+\DSPEtableend{Element Tagged Values Attribute}{attr:{BC2F4E86-D008-4f43-8E75-613AFA8FAAC2}}{}{}
+
+\DSPEtabref{attribute}{attr:{BC2F4E86-D008-4f43-8E75-613AFA8FAAC2}}{}
+
+\DSPEclasselem{Model Document Tagged Values}{Model Document Elemente werden für die \DSPEelemref{UseCase}{Dokument definieren}{D9EC1110-CA4D-4474-AB45-16C5ABF75161}{Definition von Dokumenten}{}{} verwendet.}{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}{flat}{2}{}{Proposed}
+
+\DSPEtablebegin{attribute}{Model Document Tagged Values}{attr:{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}}{}{}{}{}%
+\DSPEattribute{ea2tex_document_type}{String}{Legt den Typ des Dokuments fest. Der Typ soll die Art des Spezifikationsdokuments beschreiben. Der Zugriff in LaTeX erfolgt über das Kommando \textbackslash{}eatexDoctype. Die Standardtemplates schreiben den Typ auf die Titelseite und in die Kopfzeile des Dokuments.
+
+Ein Beispiel für eine Typbezeichnung ist: \dq{}Anforderungsspezifikation\dq{}}{}{}{}{}{7363B22C-3DC2-4ba4-9D32-678638C8C5F9}{}
+\DSPEattribute{ea2tex_document_title}{String}{Legt den Titel des Dokuments fest. Auf diesen wird in LaTeX über das Kommando \textbackslash{}eatexTitle zugegriffen. Die Standardtemplates schreiben den Typ auf die Titelseite und in die Kopfzeile des Dokuments.
+
+Als Titel wird oft das Produkt angegeben, das in dem Dokument spezifiziert wird.}{}{}{}{}{3E73722C-E194-40a0-960E-9C14AB72C27D}{}
+\DSPEattribute{ea2tex_document_lang}{{englisch,deutsch}}{Legt die Sprache des Dokuments fest. Die Sprachfestlegung beeinflusst in LaTeX u.a. die Bezeichner für Verzeichnisse, Tabellen, Abbildungen und Querverweise aber auch die Silbentrennung.}{}{deutsch}{}{}{1E6795FA-6BBC-4e6b-B60E-7BE01256B09C}{}
+\DSPEattribute{ea2tex_config_name}{Dateiname}{(optional) Ermöglicht die Spezifikation einer alternativen EA2Latex Konfigurationsdatei, die bei der Erzeugung des Dokuments verwendet wird. Diese wird vom EA2Latex Addin in dessen Konfigurationsordner des \DSPEelemref{Package}{Konfigurationsdatei}{805359FD-6A08-454a-9BC7-AC09AD5032FF}{erwartet.}{}{}}{}{}{}{}{82ED575A-FED3-40db-9467-91A70AD25BE6}{}
+\DSPEattribute{ea2tex_skip_root_package}{bool}{(optional) Gibt an, ob das Top-Level Package mit in das zu generierende Dokument aufgenommen werden soll oder nicht. Ist defaultmäßig \textit{true}, das Top-Level-Verzeichnis wird also übersprungen.}{}{true}{}{}{2629F927-C774-4843-A116-C7ADDC9F8BF2}{}
+\DSPEattribute{ea2tex_toc_depth}{int}{(optional) Gibt die Tiefe des Inhaltsverzeichnisses im Dokument an. Wenn nicht angegeben wird die Tiefe auf 3 begrenzt.}{}{3}{}{}{28151863-FCF8-44fb-8D5D-4F1081D0984A}{}
+\DSPEattribute{ea2tex_doc_filename}{String}{Dateiname des generierten Dokuments. Wenn nicht angegeben wird der Dateiname aus Dokument-Typ und -Titel generiert.
+
+Der Dateiname muss angegeben werden, wenn das Model Document ein versioniertes oder ein externes Dokument darstellt.}{}{}{}{}{8AEC4EF0-0FFE-411b-A3E7-C1430C6DEEC1}{}
+\DSPEtableend{Model Document Tagged Values Attribute}{attr:{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}}{}{}
+
+\DSPEtabref{attribute}{attr:{ECEC4C4F-0BFC-4343-9D9A-ACF12426863D}}{}
+
+\DSPEclasselem{Package Tagged Values}{Package-Elemente werden in der Regel für die \DSPEelemref{UseCase}{Abschnitte aus Packages erstellen}{B7A5B9D3-D301-4a90-9EE4-120BCD5ABEC6}{Definition von Abschnitten}{Dokument strukturieren}{} im Dokument verwendet.}{1FA04707-C150-4a2e-8DD6-E470D644D4FA}{flat}{2}{}{Proposed}
+
+\DSPEtablebegin{attribute}{Package Tagged Values}{attr:{1FA04707-C150-4a2e-8DD6-E470D644D4FA}}{}{}{}{}%
+\DSPEattribute{ea2tex_document_root}{String}{Package-Elemente, die die \DSPEelemref{UseCase}{Dokumentenbaum definieren}{8B2D24DD-E349-4902-91A8-96EA0DED2608}{Dokumentenstruktur}{Dokument definieren}{} enthalten, können das Tagged Value \textit{ea2tex_document_root }erhalten, worüber der Name des Toplevel-Verzeichnisses gesetzt werden kann.
+
+Ein Beispiel für ein Root-Verzeichnis ist: \dq{}comos\dq{}}{}{}{}{}{9E264F83-A0D5-45a8-A46E-4AF04E702967}{}
+\DSPEattribute{ea2tex_req_trace}{String}{Ein Package mit diesem Tagged Value wird für die \DSPEelemref{UseCase}{Anforderungsverfolgung generieren}{F3CAFFCD-D070-4074-B6EA-4915376D3E89}{Anforderungsverfolgung}{Inhalte automatisieren}{} benutzt. Indem man den Wert auf \textit{realizedonly }oder \textit{unrealizedonly }setzt, kann man die Anforderungsverfolgung nur auf die realisierten bzw. die nicht realisierten Anforderungen beschränken. Defaultmäßig werden sowohl die realisierten wie auch die nicht realisierten Anforderungen in der Anforderungsverfolgung angegeben.}{}{}{}{}{2B09E79F-8ED0-4d37-B734-2767C6E43030}{}
+\DSPEattribute{ea2tex_section_style}{{tree,flat}}{Packages werden üblicherweise zur Definition von Sections verwendet und gliedern somit das Dokument in einer Hierarchie, je nachdem wie sie verschachtelt sind. Über folgende Einstellungen des ea2tex_section_style Tagged Values kann das Verhalten beeinflusst werden:
+\begin{itemize}
+	\item \dq{}tree\dq{} (default): das Package wird als (hierarchische) Section behandelt und wird mit dem passenden \DSPEelemref{Package}{LaTeX Kommandos}{13BC3914-9D0E-41c2-AB93-6621A5F4EBA7}{Latex-Kommando}{}{} \textbackslash{}DSPEsectlvl* versehen. Damit erhält es in der \DSPEelemref{Package}{Standard-Build-Umgebung bereitstellen}{EC4B7D72-DEA0-4bc1-A5CF-34B208A7D011}{Standard-Buildumgebung}{}{} eine Nummer, einen Eintrag im Inhaltsverzeichnis und enthaltene Packages erhalten weiter untergliederte Nummern.
+	\item \dq{}flat\dq{}: das Package soll nicht als Section behandelt werden sondern wie ein einfaches Element dargestellt. Es wird mit dem Latex Kommando \textbackslash{}DSPEflatsect versehen. Diese Einstellung wirkt sich rekursiv auf alle enthaltenen Packages aus, so dass es zu einer flachen Darstellung der Packages kommt.
+\end{itemize}}{}{tree}{}{}{3B5D52FF-37D6-4080-AFB9-F979CCC703BC}{}
+\DSPEattribute{ea2tex_svn_root}{String}{Gibt den Pfad des Dokumentationsverzeichnisses (\textit{documentation}) des Projekts im SVN an. Muss angegeben werden, wenn Revisionsverwaltung möglich sein soll.}{}{}{}{}{0D2C1A05-FFE5-4ae4-9571-909F85FDF0BC}{}
+\DSPEattribute{ea2tex_references}{bool}{(optional) Ist dieses Tagged Value gesetzt, werden in dieses Package automatisch Referenzen generiert, die aus den Abhängigkeiten (Dependency-Verknüpfungen) des zu generierenden Model Documents von anderen Model Documents abgeleitet werden.}{}{false}{}{}{9C9AA03F-1900-4776-BF92-1F8B6553E8B5}{}
+\DSPEattribute{ea2tex_model_path}{String}{Pfad zum EA-Model aus dem das Dokument generiert wird. Dieser Pfad wird auf der Titelseite angegeben.}{}{}{}{}{9A9D4F8D-5506-41d8-8011-FF69DB42EDD5}{}
+\DSPEtableend{Package Tagged Values Attribute}{attr:{1FA04707-C150-4a2e-8DD6-E470D644D4FA}}{}{}
+
+\DSPEtabref{attribute}{attr:{1FA04707-C150-4a2e-8DD6-E470D644D4FA}}{}
+
+\DSPEpackage{LaTeX Kommandos}{1}{Im folgenden sind alle vom Addin verwendeten \DSPEelemref{Artifact}{eatexcmd.tex}{1047DF97-5D11-4944-8855-BB440B3C7E4C}{LaTeX Kommandos}{textemplates}{} definiert.
+
+\DSPEcolor{255}{0}{0}{TODO: ist zu aktualisieren!}
+
+\textbf{Überschriften}
+
+Überschriftebenen 0 bis 10:\textit{ \textbackslash{}DSPEsectlvlzero }... \textit{\textbackslash{}DSPEsectlvlten.} Erhalten als Argument:
+\begin{itemize}
+	\item \#1 den Package-Namen
+\end{itemize}
+
+Packages, die nicht als Section interpretiert werden sollen: \textit{\textbackslash{}DSPEflatsect.} Erhält als Argument:
+\begin{itemize}
+	\item \#1 den Package-Namen
+\end{itemize}
+
+\textbf{Package Elements}
+
+Default Element: \textit{\textbackslash{}DSPEelement}. Erhält die Argumente:
+\begin{itemize}
+	\item \#1 Element-Name
+\end{itemize}
+\begin{itemize}
+	\item \#2 Element-Notes
+\end{itemize}
+\begin{itemize}
+	\item \#3 Element-GUID
+\end{itemize}
+
+Artefakt: \textit{\textbackslash{}DSPEartifact}. Erhält zusätzlich zu den \textit{\textbackslash{}DSPEelement }Argumenten noch das Argument:
+\begin{itemize}
+	\item \#4 Der Dateipfad zur vom Artefakt modellierten Datei
+\end{itemize}
+
+Collaboration: \textit{\textbackslash{}DSPEcollab }(wie Default-Element)
+
+Component: \textit{\textbackslash{}DSPEcomponent }(wie Default-Element)
+
+Image component: \textit{\textbackslash{}DSPEimgcomponent}. Erhält die Argumente:
+\begin{itemize}
+	\item \#1 Element-Name
+\end{itemize}
+\begin{itemize}
+	\item \#2 Element-Notes
+\end{itemize}
+
+Object: \textit{\textbackslash{}DSPEobject }(wie Default-Element)
+
+Class: \textit{\textbackslash{}DSPEclasselem }(wie Default-Element)
+
+Interface: \textit{\textbackslash{}DSPEinterface} (wie Default-Element)
+
+State: \textit{\textbackslash{}DSPEstate  }(wie Default-Element)
+
+Scenario: \textit{\textbackslash{}DSPEscenario}.  Erhält in der Reihenfolge die Argumente:
+\begin{itemize}
+	\item \#1 den Scenario-Namen
+	\item \#2 die Scenario-Notes
+	\item \#3 den Type
+	\item \#4 den ObjectType
+\end{itemize}
+
+Scenario-Step: \textit{\textbackslash{}DSPEscenariostep}. Erhält in der Reihenfolge die Argumente:
+\begin{itemize}
+	\item \#1 den Step-Namen
+	\item \#2 das Level
+	\item \#3 die Position
+	\item \#4 den State
+\end{itemize}
+
+Scenario Extension: \textit{\textbackslash{}DSPEscenarioext}. Erhält  als Argumente:
+\begin{itemize}
+	\item \#1 Extension-Name
+	\item \#2 Level
+	\item \#3 Typ
+\end{itemize}
+
+Requirement: \textit{\textbackslash{}DSPErequirement}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Requirement Namen
+	\item \#2 Requirement Notes
+	\item \#3 Stereotype (z.B. functional)
+	\item \#4 Status (z.B. proposed)
+	\item \#5 Difficulty
+	\item \#6 Priority
+	\item \#7 Requirement Nummer (z.B. REQ-23)
+	\item \#8 Guid
+\end{itemize}
+
+\textbf{Abbildungen}
+
+Abbildung: \textit{\textbackslash{}DSPEfigure}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Guid
+	\item \#2 Diagramm-Name
+	\item \#3 scaling. Wird als drittes Argument \dq{}scaled\dq{} übergeben, dann wurde das Diagramm bereits im EA auf Seitengröße skaliert und es wird die maximale Größe bzw. Breite benutzt. Wenn \dq{}fit\dq{}, dann passt das Diagramm auf die Seite und es wird nur ein konstanter Skalierungsfaktor benutzt, damit die Seitenraender berücksichtigt werden.
+\end{itemize}
+
+\textbf{Querverweise}
+
+Verweis auf eine Abbildung: \textit{\textbackslash{}DSPEimgref}.  Erhält das folgende Argument
+\begin{itemize}
+	\item \#1 Guid
+\end{itemize}
+
+Verweis auf ein Element: \textit{\textbackslash{}DSPEelemref. }Erhält die folgenden Argumente
+\begin{itemize}
+	\item \#1 Typ des Elements auf das verwiesen wird (Package, Element, ...)
+	\item \#2 Name des Elements auf das verwiesen wird
+	\item \#3 Guid des Elements
+	\item \#4 Text der in der Referenz steht
+\end{itemize}
+
+\textbf{Tabellen}
+
+Begin der Table-Umgebung: \textit{\textbackslash{}DSPEtablebegin}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Tabellentyp
+	\item \#2 Caption
+	\item \#3 Guid
+\end{itemize}
+
+Ende der Table-Umgebung: \textit{\textbackslash{}DSPEtableend}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Caption
+	\item \#2 Guid
+	\item \#3 Stereotype
+\end{itemize}
+
+Referenz auf Tabellen: \textit{\textbackslash{}DSPEtabref}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 TBD
+	\item \#2 TBD
+	\item \#3 TBD
+\end{itemize}
+
+Klassen-Attribute \textit{\textbackslash{}DSPEattribute}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Namen
+	\item \#2 Typ
+	\item \#3 Notes des Klassen-Attributs
+	\item \#4 Stereotype
+	\item \#5 Default-Wert
+	\item \#6 Attribut-Style
+	\item \#7 Attribut-Constraints
+	\item \#8 Guid des Attributs
+	\item \#9 multiplicity (Array/Matrix-Dimensionen)
+\end{itemize}
+
+Klassen-Methode: \textit{\textbackslash{}DSPEmethod}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Namen
+	\item \#2  Rückgabewert
+	\item \#3 Parameter und
+	\item \#4 Notes der Klassen-Methode
+	\item \#5 Guid der Methode
+\end{itemize}
+
+Runstate: \textit{\textbackslash{}DSPErunstate}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Variablen-Namen
+	\item \#2 Operator (=, \textgreater{}=...)
+	\item \#3 den Wert
+\end{itemize}
+
+
+\textbf{Anforderungsverfolgung}
+
+Requirement Trace: \textit{\textbackslash{}DSPEreqtr. }Erhält als Argumente:
+\begin{itemize}
+	\item \#1 den Namen der Realisierten Anforderung
+	\item \#2 ein \textbackslash{}\textit{DSPEreqtrref} Kommando
+\end{itemize}
+
+Requirement Trace Referenz: \textit{\textbackslash{}DSPEreqtrref}. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 Den Namen des realisierenden Elementes
+\end{itemize}
+\begin{itemize}
+	\item \#2 die Guid des realisierenden Elementes
+\end{itemize}
+
+\textbf{Misc}
+
+Funktionsbeschreibung (z.B. class::method()): \textbackslash{}DSPEfuncdescr. Erhält als Argument:
+\begin{itemize}
+	\item \#1 die Funktionsbeschreibung
+\end{itemize}
+
+Textfarbe: \textbackslash{}DSPEcolor. Erhält als Argumente:
+\begin{itemize}
+	\item \#1 die Farbe
+	\item \#2 den Text
+\end{itemize}
+
+                              }{13BC3914-9D0E-41c2-AB93-6621A5F4EBA7}{tree}{}{Proposed}
+
+\DSPEpackage{Fehlermeldungen}{1}{In diesem Abschnitt wird eine Liste bekannter Fehlermeldungen gesammelt:
+\textbf{
+}\textbf{\dq{}Fehler beim Konvertieren in Package \textless{}Package-Name\textgreater{} (\textless{}Fehlermessage\textgreater{}).\dq{}}
+\begin{itemize}
+	\item Es ist eine Exception beim Durchiterieren durch den Package-Baum im Package \textless{}Package-Name\textgreater{} aufgetreten.
+\end{itemize}
+
+\textbf{\dq{}plink returned error code \textless{}ExitCode\textgreater{}! PDF creation failed!\dq{}}
+\begin{itemize}
+	\item Die Ausführung des Build-Skripts ist fehlgeschlagen.
+\end{itemize}
+\textbf{
+}\textbf{\dq{}Failed to save Diagram as PDF!\dq{}}
+\begin{itemize}
+	\item Das Speichern eines Diagramms als PDF ist fehlgeschlagen.
+\end{itemize}
+
+\textbf{\dq{}Failed to add new files\dq{}}
+\begin{itemize}
+	\item Beim Hinzufügen von Dateien im Rahamen des Commit ist ein Fehler aufgetreten
+\end{itemize}
+
+\textbf{\dq{}Backgroundworker has been Cancelled!\dq{}}
+\begin{itemize}
+	\item Der BackgroundWorker-Thread wurde aus unkeklärter Ursache vorzeitig abgebrochen.
+\end{itemize}
+
+\textbf{\dq{}Error occurred during \textless{}SVN Kommando\textgreater{}  (\textless{}Exitcode\textgreater{})! Check LOG for svn stat output!\dq{}}
+\begin{itemize}
+	\item Der fehler mit Fehlercode \textless{}Exitcode\textgreater{} ist beim Ausführen des SVN Kommandos \textless{}SVN Kommando\textgreater{} aufgetreten.
+\end{itemize}}{9694E810-4C17-4cb9-9786-A3FB07E78C92}{tree}{}{Proposed}

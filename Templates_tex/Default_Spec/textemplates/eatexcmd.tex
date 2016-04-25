@@ -1,0 +1,921 @@
+
+% Diese Datei definiert die vom EA2Latex verwendeten Kommandos.
+
+% Define url command "filepath" to be used with file paths
+\DeclareUrlCommand\filepath{\urlstyle{sf}}
+\urlstyle{sf}
+
+% Macros to access URL part of references
+\def\refpartfive#1#2#3#4#5{%
+#5%
+}
+
+\def\eatexdocname#1#2#3#4#5{%
+	\expandafter\ifx\csname eatexdoc#5\endcsname\relax%
+%		?docname?%
+	\else%
+		\expandafter\csname eatexdoc#5\endcsname%
+	\fi%
+}
+
+
+\newcommand{\urlref}[1]
+{%
+\expandafter\expandafter\expandafter\refpartfive\csname r@#1\endcsname{}%
+}
+\def\docref#1{%
+	\expandafter\ifx\csname r@#1\endcsname\relax%
+	\else%
+	\textcolor{MidnightBlue}{\expandafter\expandafter\expandafter\eatexdocname\csname r@#1\endcsname}%
+	\fi%
+}
+\makeatother
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\makeatletter
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\makeatletter
+\renewcommand\subsubparagraph{\@startsection{subsubparagraph}{6}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+%---------------------------------------------------------%
+%%%%%%%% DSPE commands %%%%%%%%%
+%---------------------------------------------------------%
+% Ueberschriften
+\newcommand{\DSPEflatsect}[1]%
+{%
+	\DSPEelementheader{#1}\newline%
+}%
+\newcommand{\DSPEsectlvlzero}[2][]{\ifthenelse{\equal{#1}{}}{\section{#2}}{\section[#1]{#2}}}
+\newcommand{\DSPEsectlvlone}[2][]{\ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}}
+\newcommand{\DSPEsectlvltwo}[2][]{\ifthenelse{\equal{#1}{}}{\subsubsection{#2}}{\subsubsection[#1]{#2}}}
+\newcommand{\DSPEsectlvlthree}[2][]%
+{%
+	\ifthenelse{\equal{#1}{}}{\paragraph{#2}}{\paragraph[#1]{#2}}%
+	
+}
+\newcommand{\DSPEsectlvlfour}[2][]%
+{%
+	\ifthenelse{\equal{#1}{}}{\subparagraph{#2}}{\subparagraph[#1]{#2}}%
+}
+\newcommand{\DSPEsectlvlfive}[2][]
+{%
+	\textbf{#2}\\%
+}
+\newcommand{\DSPEsectlvlsix}[2][]{\DSPEsectlvlfive[#1]{#2}}
+\newcommand{\DSPEsectlvlseven}[2][]{\DSPEsectlvlfive[#1]{#2}}
+\newcommand{\DSPEsectlvleight}[2][]{\DSPEsectlvlfive[#1]{#2}}
+\newcommand{\DSPEsectlvlnine}[2][]{\DSPEsectlvlfive[#1]{#2}}
+\newcommand{\DSPEsectlvlten}[2][]{\DSPEsectlvlfive[#1]{#2}}
+% --------------- Package Elements --------------%
+
+%package
+% #1 Package Name
+% #2 Level
+% #3 Package Notes
+% #4 Guid
+% #5 section style
+% #6 Stereotype
+% #7 Status
+\newcommand{\DSPEpackage}[7]%
+{%
+	\ifthenelse{\equal{#5}{tree}}
+	{
+		\ifcase #2
+		\DSPEsectlvlzero{#1}
+		\or
+		\DSPEsectlvlone{#1}
+		\or
+	        \DSPEsectlvltwo{#1}
+	        \or
+	        \DSPEsectlvlthree{#1}
+	        \or
+	        \DSPEsectlvlfour{#1}
+	        \or
+	        \DSPEsectlvlfive{#1}
+	        \else
+	        \DSPEsectlvlfive{#1}
+		\fi
+	}
+	{
+		\DSPEflatsect{#1}
+	}%
+	\label{#4}%
+	#3%
+}
+
+
+\newcommand{\DSPEelementheader}[1]%
+{%
+	\subsubparagraph*{\textcolor{MidnightBlue}{#1}}%
+}
+
+% Erhaelt die Argumente:
+% #1 Element-Name
+% #2 Element-Type
+% #3 Element-Notes
+% #4 Guid
+% #5 section_style
+% #6 level
+% #7 Stereotype
+% #8 Status
+\newcommand{\DSPEelement}[8]%
+{%
+	\ifthenelse{\not\equal{#2}{Note}}%
+	{%
+		\ifthenelse{\equal{#5}{flat}}
+		{
+			\DSPEelementheader{#1 (#2)}
+		}
+		{
+			\ifcase #6
+	                \DSPEsectlvlzero[#1]{#1 (#2)}
+	                \or
+	                \DSPEsectlvlone[#1]{#1 (#2)}
+	                \or
+	                \DSPEsectlvltwo[#1]{#1 (#2)}
+	                \or
+	                \DSPEsectlvlthree[#1]{#1 (#2)}
+	                \or
+	                \DSPEsectlvlfour[#1]{#1 (#2)}
+	                \or
+	                \DSPEsectlvlfive[#1]{#1 (#2)}
+	                \else
+	                \DSPEsectlvlfive[#1]{#1 (#2)}
+	               	\fi
+		}
+	\label{#4}%
+	#3%
+	}{}%
+}
+% Erhaelt die Argumente:
+% #1 Element-Name
+% #2 Element-Notes
+% #3 Dateipfad
+% #4 Guid
+% #5 section_style
+% #6 level
+% #7 Stereotype
+% #8 Status
+\newcommand{\DSPEartifact}[8]%
+{%
+	\ifthenelse{\equal{#5}{flat}}
+        {
+                \DSPEelementheader{#1}
+        }
+        {
+                \ifcase #6
+                \DSPEsectlvlzero{#1}
+                \or
+                \DSPEsectlvlone{#1}
+                \or
+                \DSPEsectlvltwo{#1}
+                \or
+                \DSPEsectlvlthree{#1}
+                \or
+                \DSPEsectlvlfour{#1}
+                \or
+                \DSPEsectlvlfive{#1}
+                \else
+                \DSPEsectlvlfive{#1}
+                \fi
+        }%
+	\label{#4}%
+	\ifthenelse{\not\equal{#3}{}}%
+	{%
+		\footnotesize \langStrFile: \expandafter\expandafter\expandafter\filepath\expandafter{#3} \normalsize\\%
+	}{}%
+	#2
+
+}
+
+% Erhaelt die Argumente:
+% #1 Element-Name
+% #2 Element-Notes
+% #3 Guid
+% #4 section_style
+% #5 level
+% #6 Stereotype
+% #7 Status
+\newcommand{\DSPEcollab}[7]{\DSPEelement{#1}{Collaboration}{#2}{#3}{#4}{#5}{#6}{#7}}
+
+% Erhaelt die Argumente:
+% #1 Element-Name
+% #2 classifier_elem_name
+% #3 Element-Notes
+% #4 Guid
+% #5 section_style
+% #6 level
+% #7 Stereotype
+% #8 Status
+\newcommand{\DSPEcomponent}[8]
+{%
+	\DSPEelement{\DSPEinstanceheader{#1}{#2}}{Component}{#3}{#4}{#5}{#6}{#7}{#8}
+}
+% Header für das Component-Element
+% Wenn kein Typ angegeben, dann keine Doppelpunkt
+\newcommand{\DSPEinstanceheader}[2]%
+{%
+#1\if\relax\detokenize{#2}\relax%
+\else%
+:#2%
+\fi%
+}
+
+% Erhaelt die Argumente:
+% #1 Element-Name
+% #2 classifier_name
+% #3 Element-Notes
+% #4 Guid
+% #5 section_style
+% #6 level
+% #7 Stereotype
+% #8 Status
+\newcommand{\DSPEobject}[8]{\DSPEelement{\DSPEinstanceheader{#1}{#2}}{Object}{#3}{#4}{#5}{#6}{#7}{#8}}
+
+% Erhaelt die Argumente:
+% #1 Klassen-Name
+% #2 Klassen-Notes
+% #3 GUID
+% #4 section_style
+% #5 level
+% #6 Stereotype
+% #7 Status
+\newcommand{\DSPEclasselem}[7]
+{%
+	\DSPEelement{#1}{\if\relax#6\relax{}Class\else#6\fi}{#2}{#3}{#4}{#5}{#6}{#7}
+}
+
+% Erhaelt die Argumente:
+% #1 Klassen-Name
+% #2 Klassen-Notes
+% #3 GUID
+% #4 section_style
+% #5 level
+% #6 Stereotype
+% #7 Status
+\newcommand{\DSPEinterface}[7]{\DSPEelement{#1}{Interface}{#2}{#3}{#4}{#5}{#6}{#7}}
+
+\newcommand{\DSPEimgcomponent}[2]%
+{%
+	\subparagraph*{\textcolor{MidnightBlue}{#1}}%
+
+	#2%
+}
+
+% ---------- Element "State" Umgebung ---------%
+
+% Erhaelt die Argumente:
+% #1 Name
+% #2 Notes
+% #3 GUID
+% #4 section_style
+% #5 level
+% #6 Stereotype
+% #7 Status
+\newcommand{\DSPEstate}[7]{\DSPEelement{#1}{State}{#2}{#3}{#4}{#5}{#6}{#7}}
+
+% erhält in der Reihenfolge den Scenario-Namen, die Notes, den Type und den ObjectType
+\newcommand{\DSPEscenario}[4]
+{%
+	\hspace*{\fill}\newline
+	\textbf{#1}\\
+%	#2 #3 #4\\
+}
+% Erhält in der Reihenfolge den Step-Namen, das Level, die Position und den State 
+\newcommand{\DSPEscenariostep}[4]
+{%
+	#2. #1\\
+%	#3 #4\\
+}
+
+% Erhält  als Argumente:
+% #1 Extension-Name
+% #2 Level
+% #3 Typ
+\newcommand{\DSPEscenarioext}[3]
+{%
+	#2. #3: \textbf{#1}\\
+}
+
+% -------- Element "Requirement" Umgebung --------%
+% Erhaelt als Argumente:
+% #1 Requirement Namen
+% #2 Requirement Notes
+% #3 Stereotype (z.B. functional)
+% #4 Status (z.B. proposed)
+% #5 Difficulty
+% #6 Priority
+% #7 Requirement Nummer (z.B. REQ-23)
+% #8 Guid
+\newcommand{\DSPErequirement}[8]
+{%
+	% Alternative 1
+	\subsubsection*{#1 \textnormal{(#3, #4)}}\label{#8}
+	#2			
+	%	Alternative 2
+%	\begin{table}[tbp]
+%		\centering
+%		\begin{tabular}{|v{0.3\textwidth}|v{0.65\textwidth}|}
+%			\hline
+%			\multicolumn{2}{|l|}{\textbf{Anforderung}} \tabularnewline \hline\hline
+%			Kurzbeschreibung & #1 \tabularnewline \hline
+%			Typ                     & #3 \tabularnewline \hline
+%			Status                 & #4 \tabularnewline \hline
+%			Schwierigkeit       & #5 \tabularnewline \hline
+%			Priorität               & #6 \tabularnewline \hline
+%		\end{tabular}
+%		\caption{Anforderung #7}
+%		\label{#8}
+%	\end{table}
+}
+
+
+% ------------- Figures ------------------%
+% Erhaelt als Argumente:
+% #1 Guid
+% #2 Diagramm-Name
+% #3 scaling
+% #4 Diagram Notes
+% #5 Stereotype
+% Wird als drittes Argument "scaled" uebergeben, dann wurde das Diagramm bereits
+% im EA auf Seitengroesse skaliert und es wird die maximale Groesse bzw. Breite
+% benutzt. Wenn "fit", dann passt das Diagramm auf die Seite und es wird nur ein 
+% konstanter Skalierungsfaktor benutzt, damit die Seitenraender beruecksichtigt 
+% werden.
+\newcommand{\DSPEfigure}[5]%
+{%
+	\ifthenelse{\equal{#3}{scaled}}%
+	{%
+		\begin{figure}[H]%
+			\centering%
+			\includegraphics[width=\textwidth,height=\textheight, keepaspectratio]{#1}%
+			\ifthenelse{\equal{#4}{ }}{}%
+			{%
+				\newline%
+				\DSPEnote{#4}%
+			}%
+			\caption{#2}%
+			\label{#1}%
+		\end{figure}%
+	}%
+	{%
+        \begin{figure}[H]%
+            \centering%
+            \includegraphics[scale=0.8]{#1}%
+			\ifthenelse{\equal{#4}{ }}{}%
+			{%	
+				\newline%
+				\DSPEnote{#4}%
+			}%
+            \caption{#2}%
+            \label{#1}%
+        \end{figure}%
+	}%
+}
+% Befehl um externe PDF PNG JPG EPS Dateien anzuzeigen
+% Erhält als Argument
+% #1 Dateipfad
+% #2 Notes
+% #3 Name 
+% #4 Guid
+\newcommand{\DSPEextfigure}[4]%
+{%
+	\DSPEfigurebegin%
+	\includegraphics[width=\textwidth,height=\textheight, keepaspectratio]{#1}%
+	\newline%
+	\DSPEfigureend{#2}{#3}{#4}%
+}
+
+%Befehle um Diagramm aus linked Documents zu referenzieren bzw anzuzeigen
+\newcommand{\DSPEfigurebegin}%
+{%
+	\begin{figure}[H]%
+	\centering%
+}
+% Erhaelt als Argumente:
+% #1 Notes
+% #2 Diagramm-Name
+% #3 Guid
+
+\newcommand{\DSPEfigureend}[3]%
+{%	
+	\ifthenelse{\equal{#1}{ }}{}%
+	{%
+		\DSPEnote{#1}%
+	}
+	\caption{#2}%
+	\label{#3}%
+	\end{figure}%
+}
+% Notes für Tabellen & Abbildungen
+% Erhält als Argument
+% #1 Notes
+\newcommand{\DSPEnote}[1]%
+{%
+	\newlength{\mywidth}% Neuer Längenbefehl
+	\settowidth{\mywidth}{\textit{#1}}% \mywidhth = Länge des kursiven Text
+	\ifthenelse{\lengthtest{\mywidth > 0.8\textwidth}}% 
+	{%
+	% Wenn Länge des Text größer als 0.8\textwidth dann ist dies die Boxbreite
+		\medskip%
+		\parbox[t]{0.8\textwidth}{\textit{#1}}%
+	}%
+	{%
+	% Wenn Länge des Text kleiner als 0.8\textwidth dass ist \mywidth die Boxbreite
+		\medskip%
+		\parbox{\mywidth}{\textit{#1}}%
+	}%
+}
+% ------------ cross references ---------%
+% Erhaelt das folgende Argument
+% #1 Guid
+\newcommand{\DSPEimgref}[1]%
+{%
+	\autoref{#1}~\frq\nameref{#1}\flq\docref{#1}%
+}
+
+\newcommand{\DSPEobjref}[1]
+{%
+}
+
+% Erhaelt die folgenden Argumente
+% #1 Typ des Elements auf das verwiesen wird(Package, Element, ...)
+% #2 Name des Elements auf das verwiesen wird
+% #3 Guid des Elements
+% #4 Text der in der Referenz steht
+% #5 Name des Elternelements
+% #6 Stereotype
+\newcommand{\DSPEelemref}[6]%
+{%
+	\textbf{\hyperref[#3]{#4}}\footnote{%
+        \ifthenelse{\equal{#1}{Package}}%
+        {%
+                \langStrSeeSection{} \ref{#3}~\nameref{#3}, \langStrPage{}~\pageref{#3}%
+        }{% Package else start
+        \ifthenelse{\equal{#1}{Attribute}}%
+        {%
+                \langStrSeeTable{}~\ref{#3} #5 \frqq{} #2 (\langStrAttribute), \langStrPage{}~\pageref{#3}%
+        }{% Attribute else start
+        \ifthenelse{\equal{#1}{Method}}%
+        {%
+                \langStrSeeTable{}~\ref{#3} #5 \frqq{} #2 (\langStrMethod), \langStrPage{}~\pageref{#3}%
+        }{% Method else start
+		\ifthenelse{\equal{#1}{Artifact}}%
+		{%
+			\ifthenelse{\equal{#6}{table}}%
+			{%
+				\langStrSeeTable{} \ref{#3}~\nameref{#3}, \langStrPage{}~\pageref{#3}%
+			}{% Table else start
+                \langStrSeeSection{}~\ref{#3} \frqq{} #2, \langStrPage{}~\pageref{#3}%
+			}% Table else end
+		}{% Artifact else start
+		    \langStrSeeSection{}~\ref{#3} \frqq{} #2, \langStrPage{}~\pageref{#3}%
+		}% Artifact else end
+		}% Method else end
+        }% Attribute else end
+        }% Package else end
+	~\docref{#3}%
+	}%Footnote end
+}
+
+% Erhaelt die folgenden Argumente
+% #1 Typ des Elements auf das verwiesen wird(Package, Element, ...)
+% #2 Name des Elements auf das verwiesen wird
+% #3 Guid des Elements
+% #4 Text der in der Referenz steht
+% #5 Name des Elternelements
+\newcommand{\DSPEextdocref} [5]%
+{%
+	\textbf{{#4}}\footnote{%
+		\ifthenelse{\equal{#1}{ExternalDocument}}%
+        {%
+            \langStrSee{} #2%
+        }{% ExternalDocument else start
+		    \langStrSeeSection{}~\ref{#3} \frqq{} #2, \langStrPage{}~\pageref{#3}%
+        }% ExternalDocument else end
+	}%Footnote end
+}
+
+
+\newcommand{\DSPEwebsiteref}[2]%
+{%
+	#2\footnote{\langStrSee{} \url{#1}}%
+}
+%---------------- text colours ------------%
+%Erhält als Argumnete:
+% #1 Rot Wert 0..255
+% #2 Grün-Wert 0..255
+% #3 Blau-Wert 0..255
+% #4 Text
+\newcommand{\DSPEcolor}[4]%
+{%
+	\textcolor[RGB]{#1,#2,#3}{#4}%
+}
+
+
+%----------- TABELLEN ------------------%
+\newcolumntype{v}[1]%
+{%
+	>{\raggedright\hspace{0pt}}p{#1}%
+}
+
+% Begin der Table-Umgebung
+% Erhaelt als Argumente
+% #1 Tabellentyp
+% #2 Caption
+% #3 Guid
+% #4 Stereotype
+% #5 Spaltentitel #1
+% #6 Spaltentitel #2
+% #7 Spaltentitel #3
+\newcommand{\DSPEtablebegin}[7]%
+{%
+	\ifthenelse{\equal{#1}{attribute}}%
+	{%	
+		\DSPEtablebeginattribute{#1}{#2}{#3}{#4}{#5}{#6}{#7}%	
+	}{}%
+    \ifthenelse{\equal{#1}{attributeAlias}}%
+    {%
+		\DSPEtablebeginattributeAlias{#1}{#2}{#3}{#4}{#5}{#6}{#7}%	
+    }{}%
+    \ifthenelse{\equal{#1}{attributeAliasConstr}}%
+    {%
+		\DSPEtablebeginattributeAliasConstr{#1}{#2}{#3}{#4}{#5}{#6}{#7}%	
+    }{}%
+    \ifthenelse{\equal{#1}{attributeConstraint}}%
+    {%
+		\DSPEtablebeginattributeConstraint{#1}{#2}{#3}{#4}{#5}{#6}{#7}%	
+    }{}%
+	\ifthenelse{\equal{#1}{method}}%
+	{%	
+		\DSPEtablebeginmethod{#1}{#2}{#3}{#4}{#5}{#6}{#7}%
+	}{}%
+	\ifthenelse{\equal{#1}{reqtrace}}%
+	{%
+		\DSPEtablebeginreqtrace{#1}{#2}{#3}{#4}{#5}{#6}{#7}%
+	}{}%
+    \ifthenelse{\equal{#1}{runstate}}%
+    {%
+		\DSPEtablebeginrunstate{#1}{#2}{#3}{#4}{#5}{#6}{#7}%
+    }{}%
+	\ifthenelse{\equal{#1}{search2}}%
+    {%
+		\DSPEtablebeginsearchtwo{#1}{#2}{#3}{#4}{#5}{#6}{#7}%
+    }{}%
+	\ifthenelse{\equal{#1}{search2landscape}}%
+    {%
+		\DSPEtablebeginsearchtwolandscape{#1}{#2}{#3}{#4}{#5}{#6}{#7}%
+    }{}%
+	\ifthenelse{\equal{#1}{search3}}%
+    {%
+		\DSPEtablebeginsearchthree{#1}{#2}{#3}{#4}{#5}{#6}{#7}%				
+    }{}%
+	\ifthenelse{\equal{#1}{search3landscape}}%
+    {%
+		\DSPEtablebeginsearchthreelandscape{#1}{#2}{#3}{#4}{#5}{#6}{#7}%	
+    }{}%	
+}
+
+\newcommand{\DSPEtablebeginattribute}[7]%
+{%
+	\ifthenelse{\equal{#4}{command interface}}%
+	{%
+		\begin{small}%
+		\begin{longtable}{|v{0.3\textwidth}|v{0.65\textwidth}|}%
+		\caption{#2 \langStrParameter}%
+		\label{#3}%
+		\hline%
+		\textbf{\langStrParameter} & \textbf{\langStrDescription}\tabularnewline \hline\hline%
+		\endfirsthead%
+		\hline%
+		\textbf{\langStrParameter} & \textbf{\langStrDescription}\tabularnewline \hline\hline \endhead%
+	}{%
+		\begin{small}%
+		\begin{longtable}{|v{0.3\textwidth}|v{0.65\textwidth}|}%
+		\caption{#2 \langStrAttributes}%
+		\label{#3}%
+		\hline%
+		\textbf{\langStrAttribute} & \textbf{\langStrNotes}\tabularnewline \hline\hline%
+		\endfirsthead%
+		\hline%
+		\textbf{\langStrAttribute} & \textbf{\langStrNotes}\tabularnewline \hline\hline \endhead%
+	}%
+}
+
+\newcommand{\DSPEtablebeginattributeAlias}[7]%
+{%
+	\begin{small}%
+	\begin{longtable}{|v{0.3\textwidth}|v{0.3\textwidth}|v{0.35\textwidth}|}%
+	\caption{#2 \langStrAttributes}%
+	\label{#3}%
+	\hline%
+	\textbf{\langStrAttribute} & \textbf{Alias}  & \textbf{\langStrNotes}\tabularnewline \hline\hline%
+	\endfirsthead%
+    \hline%
+	\textbf{\langStrAttribute} & \textbf{Alias}  & \textbf{\langStrNotes}\tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginattributeAliasConstr}[7]%
+{%
+	\begin{small}%
+    \begin{longtable}{|v{0.25\textwidth}|v{0.2\textwidth}|v{0.25\textwidth}|v{0.25\textwidth}|}%
+    \caption{#2 \langStrAttributes}%
+    \label{#3}%
+    \hline%
+    \textbf{\langStrAttribute} & \textbf{Alias}  & \textbf{Constraints} & \textbf{\langStrNotes}\tabularnewline \hline\hline%
+    \endfirsthead%
+	\hline%
+	\textbf{\langStrAttribute} & \textbf{Alias}  & \textbf{Constraints} &\textbf{\langStrNotes}\tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginattributeConstraint}[7]%
+{%
+	\begin{small}%
+	\begin{longtable}{|v{0.3\textwidth}|v{0.3\textwidth}|v{0.35\textwidth}|}%
+    \caption{#2 \langStrAttributes}%
+    \label{#3}%
+    \hline%
+    \textbf{\langStrAttribute} & \textbf{Constraint}  & \textbf{\langStrNotes}\tabularnewline \hline\hline%
+    \endfirsthead%
+    \hline%
+    \textbf{\langStrAttribute} & \textbf{Constraint}  & \textbf{\langStrNotes}\tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginmethod}[7]%
+{%
+	\ifthenelse{\equal{#4}{command interface}}%
+	{%
+		\begin{small}%
+		\begin{longtable}{|v{0.3\textwidth}|v{0.7\textwidth}|}%
+		\caption{#2 \langStrCommands}%
+		\label{#3}%
+		\hline%
+		\textbf{\langStrCommand} & \textbf{\langStrDescription} \tabularnewline \hline\hline%
+		\endfirsthead%
+		\hline%
+		\textbf{\langStrDescription} & \textbf{\langStrDescription} \tabularnewline \hline\hline \endhead%
+	}{%
+		\begin{small}%
+		\begin{longtable}{|v{0.4\textwidth}|v{0.2\textwidth}|v{0.35\textwidth}|}%
+		\caption{#2 \langStrMethods}%
+		\label{#3}%
+		\hline%
+		\textbf{\langStrMethod} & \textbf{\langStrReturnType} & \textbf{\langStrNotes} \tabularnewline \hline\hline%
+		\endfirsthead%
+		\hline%
+		\textbf{\langStrMethod} & \textbf{\langStrReturnType} & \textbf{\langStrNotes} \tabularnewline \hline\hline \endhead%
+	}%
+}
+
+\newcommand{\DSPEtablebeginreqtrace}[7]%
+{%
+	\begin{small}%
+	\begin{longtable}{|v{0.5\textwidth}|v{0.5\textwidth}|}%
+	\caption{#2}%
+	\label{#3}%
+	\hline%
+	\textbf{\langStrRequirement} & \textbf{\langStrRealizedBy} \tabularnewline \hline\hline%
+	\endfirsthead%
+	\hline%
+	\textbf{\LangStrRequirement} & \textbf{\langStrRealizedBy} \tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginrunstate}[7]%
+{%
+    \begin{small}%
+    \begin{longtable}{|v{0.5\textwidth}|v{0.5\textwidth}|}%
+    \caption{#2}%
+    \label{#3}%
+    \hline%
+    \textbf{Variable} & \textbf{\langStrValue} \tabularnewline \hline\hline%
+	\endfirsthead%
+	\hline%
+	\textbf{Variable} & \textbf{\langStrValue} \tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginsearchtwo}[7]%
+{%
+	\begin{small}%
+    \begin{longtable}{|v{0.5\textwidth}|v{0.5\textwidth}|}%
+    \caption{#2}%
+    \label{#3}%
+    \hline%
+    \textbf{#5} & \textbf{#6} \tabularnewline \hline\hline%
+    \endfirsthead%
+	\hline%
+	\textbf{#5} & \textbf{#6} \tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginsearchtwolandscape}[7]%
+{%
+    \begin{landscape}%
+	\begin{small}%
+    \begin{longtable}{|v{0.39\paperheight}|v{0.39\paperheight}|}%
+    \caption{#2}%
+    \label{#3}%
+    \hline%
+    \textbf{#5} & \textbf{#6} \tabularnewline \hline\hline%
+    \endfirsthead%
+	\hline%
+	\textbf{#5} & \textbf{#6} \tabularnewline \hline\hline \endhead%
+}
+
+\newcommand{\DSPEtablebeginsearchthree}[7]%
+{%
+    \begin{small}%
+    \begin{longtable}{|v{0.3\textwidth}|v{0.3\textwidth}|v{0.3\textwidth}|}%
+    \caption{#2}%
+    \label{#3}%
+    \hline%
+    \textbf{#5} & \textbf{#6} & \textbf{#7} \tabularnewline \hline\hline%
+    \endfirsthead%
+	\hline%
+	\textbf{#5} & \textbf{#6} & \textbf{#7} \tabularnewline \hline\hline%
+    \endhead%
+}
+
+\newcommand{\DSPEtablebeginsearchthreelandscape}[7]%
+{%
+	\begin{landscape}%
+    \begin{small}%
+    \begin{longtable}{|v{0.26\paperheight}|v{0.26\paperheight}|v{0.26\paperheight}|}%
+    \caption{#2}%
+    \label{#3}%
+    \hline%
+    \textbf{#5} & \textbf{#6} & \textbf{#7} \tabularnewline \hline\hline%
+    \endfirsthead%
+	\hline%
+	\textbf{#5} & \textbf{#6} & \textbf{#7} \tabularnewline \hline\hline%
+    \endhead%
+}
+% Begin der Table-Umgebung (sonderfall für tabellen in rtf dokumenten)
+% Erhaelt als Argumente
+% #1 Caption
+% #2 Guid
+% #3 Stereotype
+% #4 Notes
+\newcommand{\DSPEtablebeginexttab}[4]%
+{%
+    \begin{table}[h]%
+	\caption{#1}%
+    \label{#2}%
+	\ifthenelse{\equal{#4}{ }}{\medskip}%
+	{%
+	\centering
+	\DSPEnote{#4}%
+	\bigskip%
+	}
+}
+
+% Ende der Table-Umgebung
+% Erhaelt als Argumente:
+% #1 Caption
+% #2 Guid
+% #3 Stereotype
+% #4 landscape
+\newcommand{\DSPEtableend}[4]%
+{%
+	\end{longtable}%
+	\end{small}%
+	\ifthenelse{\equal{#4}{landscape}}%
+	{%
+	\end{landscape}%
+	}{}%
+}
+\newcommand{\DSPEtableendexttab}%
+{%
+	\end{table}%
+}
+% Tabellen aus CSV Dateien
+% Erhält als Argument:
+% #1 Caption
+% #2 Guid
+% #3 Dateipfad
+% #4 CSV Delimiter
+% #5 Notes
+\newcommand{\DSPEcsvtable}[5]%
+{%
+	\DTLsetseparator{#4}%
+	\DTLloaddb{csvdata}{\detokenize{#3}}%
+	\DTLdisplaylongdb[caption={#1}, contcaption={#1 (\langStrContinued)},label={#2}]{csvdata}%	
+	\ifthenelse{\equal{#5}{ }}{\medskip}%
+	{%
+		\begin{center}%
+		\DSPEnote{#5}%
+		\bigskip%
+		\end{center}%
+	}%
+}
+% Referenz auf Tabellen
+% Wird derzeit nicht genutzt, da die Tabellen derzeit nicht floating sind
+\newcommand{\DSPEtabref}[3]%
+{%
+}
+
+% Erhält als Argumente
+% #1 Namen
+% #2 Typ
+% #3 Notes des Klassen-Attributs
+% #4 Stereotype
+% #5 Default-Wert
+% #6 Attribut-Style
+% #7 Attribut-Constraints
+% #8 Guid des Attributs
+% #9 multiplicity
+\newcommand{\DSPEattribute}[9]%
+{%
+        \ifthenelse{\equal{#6}{}}%
+        {%
+		\ifthenelse{\equal{#7}{}}%
+	        {%
+			\textbf{#1 \label{#8}} #2 #9 & #3\ifthenelse{\equal{#5}{}}{}{~Default: #5}\tabularnewline \hline%
+		}{%
+			\textbf{#1 \label{#8}} #2 #9 & #7 & #3\ifthenelse{\equal{#5}{}}{}{~Default: #5}\tabularnewline \hline%
+		}%
+        }{%
+		 \ifthenelse{\equal{#7}{}}%
+                {%
+			\textbf{#1 \label{#8}} #2 #9 & #6 & #3\ifthenelse{\equal{#5}{}}{}{~Default: #5}\tabularnewline \hline%
+		}{%
+			\textbf{#1 \label{#8}} #2 #9 & #6 & #7 & #3\ifthenelse{\equal{#5}{}}{}{~Default: #5}\tabularnewline \hline%
+		}%
+	}%
+}
+
+\newcommand{\DSPErunstate}[3]%
+{%
+	\textbf{#1} & #2 \tabularnewline \hline%
+}
+
+\newcommand{\DSPEsearchtwo}[2]%
+{%
+	#1 & #2 \tabularnewline \hline%
+}
+\newcommand{\DSPEsearchthree}[3]%
+{%
+	#1 & #2 & #3\tabularnewline \hline%
+}
+
+% Erhält als Argumente den namen und die Notes der Constraint.
+\newcommand{\DSPEconstraint}[2]{#1: #2}
+%Zeilenumbruch innerhalb einer Tabelle
+\newcommand{\DSPEconstraintsep}%
+{%
+\newline%
+}
+% Erhält als Argumente
+% #1 Namen der Methode
+% #2 Rückgabewert der Methode
+% #3 Methoden-Parameter
+% #4 Notes
+% #5 Guid der Methode
+% #6 Stereotype des Klassenelements
+\newcommand{\DSPEmethod}[6]%
+{%	
+	\ifthenelse{\equal{#6}{command interface}}%
+	{%
+	\textbf{#1 \label{#5}} & #4 \tabularnewline \hline%
+	}{%
+	\textbf{#1(#3) \label{#5}} & #2 & #4 \tabularnewline \hline%
+	}
+}
+
+% Für Funktionsbeschreibungen , z.B. class::method()
+\newcommand{\DSPEfuncdescr}[1]
+{%
+	\noindent\textbf{#1}\\
+	\hspace{2mm}
+}
+
+% Requirement Trace
+% Erhaelt als Argumente:
+% #1 den Namen der Realisierten Anfoderderung
+% #2 eine DSPEreqtrref
+\newcommand{\DSPEreqtr}[2]%
+{%
+	#1 & #2  \tabularnewline \hline%
+}
+% Requirement Trace Referenz
+% Erhaelt als Argumente:
+% #1 Den Namen des realisierenden Elementes
+% #2 die Guid des realisierenden Elementes
+\newcommand{\DSPEreqtrref}[2]%
+{%
+	#1 (\langStrseeSection{}~\ref{#2}) %
+}
+
