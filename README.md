@@ -50,4 +50,4 @@ Additional Notes:
 
 ## Downloads
 
-See the Releases section of the repository for binary downloads.
+See the [Releases](https://github.com/DSPECIALISTS/EA2Latex/releases) section of the repository for binary downloads.
