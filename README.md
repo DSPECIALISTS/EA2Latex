@@ -23,7 +23,7 @@ See [EA2Latex_Handbuch.pdf](Documentation/EA2Latex_Handbuch/EA2Latex_Handbuch.pd
 ## Getting Started
 
  1. Download the EA2Latex Addin and install it onto your Enterprise Architect PC
- 2. Setup a Build Server, e.g. by setting up on a Linux server or virtual machine containing:
+ 2. Setup a Build Server, e.g. by setting up a Linux server or virtual machine containing:
   * a LaTeX distribution (e.g. texlive)
   * [RTF2Latex](https://sourceforge.net/projects/rtf2latex2e/)
   * sshd
@@ -32,15 +32,15 @@ See [EA2Latex_Handbuch.pdf](Documentation/EA2Latex_Handbuch/EA2Latex_Handbuch.pd
  4. Use [PuTTY](https://the.earth.li/~sgtatham/putty/latest/x86/putty.exe) to connect to the Build Server via SSH and accept the server key.
  5. Download the [default EA2Latex specification template](EA2Latex/Templates_tex/Default_Spec) and copy it onto the Build Server, e.g. into /home/ealatex/ealatex_bin
  6. Configure the EA2Latex Addin
-  * Fire up Enterprise Architect and open a project. 
-  * Right-click on a package in the Project Browser and choose "Extensions/EA2Latex/Manage" from the context menu. 
-  * EA2Latex Addin will complain about a missing configuration file and will offer you to open the configuration folder.
-  * Hit [Yes] to open the configuratino folder.
-  * Rename the existing ea2latex_default.conf to ea2latex.conf.
-  * Edit the ea2latex.conf file to reflect your Build Server setup.
+  1. Fire up Enterprise Architect and open a project. 
+  2. Right-click on a package in the Project Browser and choose "Extensions/EA2Latex/Manage" from the context menu. 
+  3. EA2Latex Addin will complain about a missing configuration file and will offer you to open the configuration folder.
+  4. Hit [Yes] to open the configuratino folder.
+  5. Rename the existing ea2latex_default.conf to ea2latex.conf.
+  6. Edit the ea2latex.conf file to reflect your Build Server setup.
  7. Start building a document from a package in the Project Browser using the context menu "Extensions/EA2Latex/Generate"
   * EA2Latex will ask you for your Build Server login credentials
-  * NOTE: It is important that you have accepted the server key beforehand and described above.
+  * NOTE: It is important that you have accepted the server key beforehand as described above.
 
 See the [user manual](Documentation/EA2Latex_Handbuch/EA2Latex_Handbuch.pdf) for further details.
 
