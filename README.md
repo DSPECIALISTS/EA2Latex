@@ -2,7 +2,7 @@
 
 EA2Latex enhances Enterprise Architect with advanced document generaration features to support the model driven specification work flow. EA2Latex generates ready to release specification documents from your EA model which require no further tweaking.
 
-EA2Latex was started as an internal tool at [DSPECIALISTS](http://www.dspecialists.com) and has been presented at the Embedded World Conference 2016 in Nuremberg where it received public interest.
+EA2Latex was started as an internal tool at [DSPECIALISTS](http://www.dspecialists.com) and has been presented at the Embedded World Conference 2016 in Nuremberg where it received public interest. In the cause DSPECIALISTS decided to release EA2Latex to the public.
 
 ## Architecture
 
